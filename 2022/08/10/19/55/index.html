@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="">
+
+<head>
+    <meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <meta name="author" content="Gunther Xing">
+
+
+    <meta name="subtitle" content="A blog site belong to Gunther Xing">
+
+
+
+
+<title>【差生文具多】搭建zotero到obsidian的工作流 | Gunther&#39;s Blog</title>
+
+
+
+    <link rel="icon" href="/J_Drive.ico">
+
+
+
+
+    <!-- stylesheets list from _config.yml -->
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+
+
+
+    <!-- scripts list from _config.yml -->
+    
+    <script src="/js/script.js"></script>
+    
+    <script src="/js/tocbot.min.js"></script>
+    
+
+
+
+    
+    
+        <!-- MathJax配置，可通过单美元符号书写行内公式等 -->
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+    "HTML-CSS": {
+        preferredFont: "TeX",
+        availableFonts: ["STIX","TeX"],
+        linebreaks: { automatic:true },
+        EqnChunk: (MathJax.Hub.Browser.isMobile ? 10 : 50)
+    },
+    tex2jax: {
+        inlineMath: [ ["$", "$"], ["\\(","\\)"] ],
+        processEscapes: true,
+        ignoreClass: "tex2jax_ignore|dno",
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    },
+    TeX: {
+        equationNumbers: { autoNumber: "AMS" },
+        noUndefined: { attributes: { mathcolor: "red", mathbackground: "#FFEEEE", mathsize: "90%" } },
+        Macros: { href: "{}" }
+    },
+    messageStyle: "none"
+    });
+</script>
+<!-- 给MathJax元素添加has-jax class -->
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+<!-- 通过连接CDN加载MathJax的js代码 -->
+<script type="text/javascript" async
+        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+
+
+    
+
+
+<meta name="generator" content="Hexo 6.2.0"></head>
+
+<body>
+    <script>
+        // this function is used to check current theme before page loaded.
+        (() => {
+            const currentTheme = window.localStorage && window.localStorage.getItem('theme') || '';
+            const isDark = currentTheme === 'dark';
+            const pagebody = document.getElementsByTagName('body')[0]
+            if (isDark) {
+                pagebody.classList.add('dark-theme');
+                // mobile
+                document.getElementById("mobile-toggle-theme").innerText = "· Dark"
+            } else {
+                pagebody.classList.remove('dark-theme');
+                // mobile
+                document.getElementById("mobile-toggle-theme").innerText = "· Light"
+            }
+        })();
+    </script>
+
+    <div class="wrapper">
+        <header>
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-header header-logo"><a href="/">Gunther&#39;s Blog</a></div>
+            <div class="menu navbar-right">
+                
+                    <a class="menu-item" href="/archives">Posts</a>
+                
+                    <a class="menu-item" href="/category">Categories</a>
+                
+                    <a class="menu-item" href="/tag">Tags</a>
+                
+                    <a class="menu-item" href="/about">About</a>
+                
+                <input id="switch_default" type="checkbox" class="switch_default">
+                <label for="switch_default" class="toggleBtn"></label>
+            </div>
+        </div>
+    </nav>
+
+    
+    <nav class="navbar-mobile" id="nav-mobile">
+        <div class="container">
+            <div class="navbar-header">
+                <div>
+                    <a href="/">Gunther&#39;s Blog</a><a id="mobile-toggle-theme">·&nbsp;Light</a>
+                </div>
+                <div class="menu-toggle" onclick="mobileBtn()">&#9776; Menu</div>
+            </div>
+            <div class="menu" id="mobile-menu">
+                
+                    <a class="menu-item" href="/archives">Posts</a>
+                
+                    <a class="menu-item" href="/category">Categories</a>
+                
+                    <a class="menu-item" href="/tag">Tags</a>
+                
+                    <a class="menu-item" href="/about">About</a>
+                
+            </div>
+        </div>
+    </nav>
+
+</header>
+<script>
+    var mobileBtn = function f() {
+        var toggleMenu = document.getElementsByClassName("menu-toggle")[0];
+        var mobileMenu = document.getElementById("mobile-menu");
+        if(toggleMenu.classList.contains("active")){
+           toggleMenu.classList.remove("active")
+            mobileMenu.classList.remove("active")
+        }else{
+            toggleMenu.classList.add("active")
+            mobileMenu.classList.add("active")
+        }
+    }
+</script>
+            <div class="main">
+                <div class="container">
+    
+    
+        <div class="post-toc">
+    <div class="tocbot-list">
+    </div>
+    <div class="tocbot-list-menu">
+        <a class="tocbot-toc-expand" onclick="expand_toc()">Expand all</a>
+        <a onclick="go_top()">Back to top</a>
+        <a onclick="go_bottom()">Go to bottom</a>
+    </div>
+</div>
+
+<script>
+    var tocbot_timer;
+    var DEPTH_MAX = 6; // 为 6 时展开所有
+    var tocbot_default_config = {
+        tocSelector: '.tocbot-list',
+        contentSelector: '.post-content',
+        headingSelector: 'h1, h2, h3, h4, h5',
+        orderedList: false,
+        scrollSmooth: true,
+        onClick: extend_click,
+    };
+
+    function extend_click() {
+        clearTimeout(tocbot_timer);
+        tocbot_timer = setTimeout(function() {
+            tocbot.refresh(obj_merge(tocbot_default_config, {
+                hasInnerContainers: true
+            }));
+        }, 420); // 这个值是由 tocbot 源码里定义的 scrollSmoothDuration 得来的
+    }
+
+    document.ready(function() {
+        tocbot.init(obj_merge(tocbot_default_config, {
+            collapseDepth: 1
+        }));
+    });
+
+    function expand_toc() {
+        var b = document.querySelector('.tocbot-toc-expand');
+        var expanded = b.getAttribute('data-expanded');
+        expanded ? b.removeAttribute('data-expanded') : b.setAttribute('data-expanded', true);
+        tocbot.refresh(obj_merge(tocbot_default_config, {
+            collapseDepth: expanded ? 1 : DEPTH_MAX
+        }));
+        b.innerText = expanded ? 'Expand all' : 'Collapse all';
+    }
+
+    function go_top() {
+        window.scrollTo(0, 0);
+    }
+
+    function go_bottom() {
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+    function obj_merge(target, source) {
+        for (var item in source) {
+            if (source.hasOwnProperty(item)) {
+                target[item] = source[item];
+            }
+        }
+        return target;
+    }
+</script>
+    
+
+    
+    <article class="post-wrap">
+        <header class="post-header">
+            <h1 class="post-title">【差生文具多】搭建zotero到obsidian的工作流</h1>
+            
+                <div class="post-meta">
+                    
+
+                    
+                        <span class="post-time">
+                        Date: <a href="#">August 10, 2022&nbsp;&nbsp;19:55:04</a>
+                        </span>
+                    
+                    
+                        <span class="post-category">
+                    Category:
+                            
+                                <a href="/categories/Tools/">Tools</a>
+                            
+                        </span>
+                    
+                </div>
+            
+        </header>
+
+        <div class="post-content">
+            <h1
+id="从零搭建zotero到obsidian的工作流">从零搭建zotero到obsidian的工作流</h1>
+<p>所谓“工欲善其事，必先利其器”<del>（差生文具多）</del>，想要针对一个领域研究出成果，首先需要建立其对于这个领域完善的知识体系，即形成属于自己的<strong>知识库</strong>。现在有非常多的笔记软件，例如Notion、语雀、Obsidian等等，对于建立知识库非常有帮助，下面我就来谈谈我个人探索出来的一套<strong>从zotero管理文献，到阅读文献做笔记再到obsidian中形成阅读笔记</strong>的丝滑工作流。</p>
+<h2 id="why-zotero">Why zotero?</h2>
+<p><a
+target="_blank" rel="noopener" href="https://www.zotero.org/">zotero</a>是一个文献管理软件，据我了解，其前身其实只是一款浏览器插件，用于提供文献元数据的管理，直到后来被开源社区开发成一款跨平台的桌面级软件，并且有非常好的开源社区以及大量的插件。</p>
+<p><img src="1.png" /></p>
+<p>文献管理软件当然也不止这一款，至于为什么选择zotero，原因其实非常简单，就是因为它是<strong>开源软件</strong>，我本人是如果功能足够用，一定会优先考虑开源软件的。开源软件一般拥有庞大的专业用户，他们拥有过硬的技术和开源精神，形成的社区非常喜人。</p>
+<p>zotero的基础操作我就不多说了，其实使用起来也比较简单，我主要利用它来分类整理文献，同时搭配Zotero
+Connector浏览器插件，在google
+scholar中浏览文献的时候直接一键收录并且提取元数据。</p>
+<p>这里推荐两个比较好用的插件，也是我觉得必装的，后续的配置会默认已经安装了这两个插件，插件的配置可以参考网络然后根据自己的需要进行。</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://retorque.re/zotero-better-bibtex">Better BibTex</a>
+6.7.19 ——主要用来帮助zotero更好的管理bibliographic数据</li>
+<li><a target="_blank" rel="noopener" href="http://zotfile.com/">ztofile</a> 5.1.1 ——
+更好的管理附件文件，例如格式化命名、移动附件等等</li>
+<li>另外我的Zotero版本是6.0.11</li>
+</ul>
+<p>同时还可以配置Zotero利用云盘进行备份/多设备同步等等，例如我就将我的整个附件目录以及Zotero数据库放在了icloud中。</p>
+<h2 id="why-obsidian">Why obsidian?</h2>
+<p>说实话，<a
+target="_blank" rel="noopener" href="https://obsidian.md/">obsidian</a>算是后起之秀了，在知识库软件百花齐放的今天，这个界面不那么友好的软件似乎没有什么竞争力，但对于专业人士来说，恰恰相反。obsidian它所有的特性完美的符合了我的需求。</p>
+<ul>
+<li>文档以markdown格式编写，同时提供扩展语法</li>
+<li>数据存储在本地，且直接以<code>.md</code>格式存储，让人放心</li>
+<li>提供双向链接、关系图谱等功能</li>
+<li>拥有非常庞大的插件支持（例如Vim相关的插件以及等下我们会用到的插件）</li>
+</ul>
+<p><img src="2.png" /></p>
+<h2 id="构建文献阅读整理工作流">构建文献阅读整理工作流</h2>
+<p>在我们阅读文献的时候，特别是精读的时候，我觉得比较好的一个流程是：</p>
+<ol type="1">
+<li>一遍阅读一遍标注一边写评论，这样可以有助于理解文章，同时理清文章的脉络</li>
+<li>利用不同的颜色区分标注的不同内容</li>
+<li>阅读完成后整理阅读笔记，形成知识存储在知识库中，方便以后翻阅，因为通常需要阅读大量的文献，很容易不记得一些文件的细节</li>
+</ol>
+<p>下面我就按照上面的流程来介绍我探索出来的一个工作流</p>
+<h3 id="文献标注">文献标注</h3>
+<p>我会用不同的颜色来表示标注内容的不同意思，通常的习惯是</p>
+<ul>
+<li>橘色表示文章的<strong>主要思想</strong></li>
+<li>黄色表示<strong>研究的细节部分或者系统实现的细节</strong></li>
+<li>红色表示<strong>还需要继续探究的部分或者感兴趣的参考文献</strong></li>
+</ul>
+<p><img src="3.png" /></p>
+<p>通过不同颜色的区分不仅有助于我们梳理文章内容，同时也方便接下来导入Obsidian的配置。</p>
+<h3 id="导入obsidian形成笔记">导入Obsidian，形成笔记</h3>
+<p>说了这么多，终于到了重点部分，看起来毫不相关的两个软件，是如何联系起来的呢，这就不得不提到Obsidian的一个插件——<a
+target="_blank" rel="noopener" href="https://github.com/mgmeyers/obsidian-zotero-integration">zotero-integration</a>了</p>
+<blockquote>
+<p>其实在发现这款插件之前，我是根据<a
+target="_blank" rel="noopener" href="https://forum.obsidian.md/t/zotero-zotfile-mdnotes-obsidian-dataview-workflow/15536">Zotero
+-&gt; zotfile -&gt; mdnotes -&gt; obsidian -&gt; dataview
+Workflow</a>这篇帖子在实现我的workflow的，但是后来由于zotero的更新，导致zotero的插件mdnote失效了，所以换成了更稳定的Obsidian端实现</p>
+</blockquote>
+<p>安装好zotero-integration后，可以首先通过<a
+target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV1jF411A7d6?spm_id_from=333.880.my_history.page.click&amp;vd_source=b31bac4d051d2f11c0776b571298867b">这个视频</a>熟悉它的使用</p>
+<p>现在我们知道了zotero-integration可以通过编写模板实现格式化导入文献笔记</p>
+<p>那么我自己的模板文件如下：</p>
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br></pre></td><td class="code"><pre><span class="line">---</span><br><span class="line">title: &#123;&#123;title&#125;&#125;</span><br><span class="line">date: &#123;&#123;importDate | format(&quot;YYYY-MM-DD HH:mm:ss&quot;)&#125;&#125;</span><br><span class="line">categories: </span><br><span class="line">tags:&#123;% for tag in tags %&#125;</span><br><span class="line"><span class="section">  - &#123;&#123;tag.tag&#125;&#125;&#123;% endfor %&#125;</span></span><br><span class="line"><span class="section">---</span></span><br><span class="line"></span><br><span class="line"><span class="section">### Matedata</span></span><br><span class="line"><span class="section">#zotero</span></span><br><span class="line"></span><br><span class="line"><span class="section">##### Item Type::</span></span><br><span class="line">[[&#123;&#123;itemType&#125;&#125;]]</span><br><span class="line"></span><br><span class="line"><span class="section">##### Authors::</span></span><br><span class="line">&#123;&#123;authors&#125;&#125;</span><br><span class="line"></span><br><span class="line">&#123;%if date %&#125;##### Year::</span><br><span class="line">[[&#123;&#123;date | format(&quot;YYYY&quot;)&#125;&#125;]]-&#123;&#123;date | format(&quot;MM&quot;)&#125;&#125;&#123;% endif %&#125;</span><br><span class="line"></span><br><span class="line">&#123;%if conferenceName %&#125;##### Conference Name</span><br><span class="line">[[&#123;&#123;conferenceName&#125;&#125;]]&#123;% else %&#125;&#123;% if publicationTitle %&#125;##### Publication Title</span><br><span class="line">[[&#123;&#123;publicationTitle&#125;&#125;]]&#123;% endif %&#125;&#123;% endif %&#125;</span><br><span class="line"></span><br><span class="line">&#123;%if DOI %&#125;##### DOI::</span><br><span class="line">[<span class="string">&#123;&#123;DOI&#125;&#125;</span>](<span class="link">https://doi.org/&#123;&#123;DOI&#125;&#125;</span>)&#123;% endif %&#125;</span><br><span class="line"></span><br><span class="line">&#123;%if pdfLink %&#125;##### PDF Attachment::</span><br><span class="line">&#123;&#123;pdfLink&#125;&#125;&#123;% endif %&#125;</span><br><span class="line"></span><br><span class="line"><span class="section">##### Zotero Link</span></span><br><span class="line"><span class="bullet">-</span> [<span class="string">Local</span>](<span class="link">&#123;&#123;select&#125;&#125;</span>)</span><br><span class="line"><span class="bullet">-</span> [<span class="string">Cloud</span>](<span class="link">&#123;&#123;uri&#125;&#125;</span>)</span><br><span class="line"></span><br><span class="line"><span class="section"># &#123;&#123;title&#125;&#125;(&#123;%if date %&#125;&#123;&#123;date | format(&quot;YYYY&quot;)&#125;&#125;&#123;% endif %&#125;)</span></span><br><span class="line">&gt;[<span class="string">DOI</span>] [<span class="string">&#123;&#123;DOI&#125;&#125;</span>](<span class="link">https://doi.org/&#123;&#123;DOI&#125;&#125;</span>)</span><br><span class="line"></span><br><span class="line"><span class="section">## Abstract</span></span><br><span class="line">&#123;&#123;abstractNote&#125;&#125;</span><br><span class="line"></span><br><span class="line"><span class="section">## 摘要</span></span><br><span class="line"></span><br><span class="line"><span class="section">## 正文</span></span><br><span class="line">&#123;% for annotation in annotations %&#125;&#123;% if annotation.type == &quot;highlight&quot; %&#125;&#123;% if annotation.colorCategory %&#125;&#123;% if annotation.colorCategory == &quot;Orange&quot; %&#125;</span><br><span class="line"><span class="code">```ad-main_idea</span></span><br><span class="line"><span class="code">&#123;&#123;annotation.annotatedText&#125;&#125;(&#123;% if pdfLink %&#125;&#123;% if citeKey %&#125;[&#123;&#123;citeKey&#125;&#125;]&#123;% elif citationKey %&#125;[&#123;&#123;citationKey&#125;&#125;]&#123;% else %&#125;[Link]&#123;% endif %&#125;&#123;% if annotation.attachment.desktopURI and annotation.page %&#125;(&#123;&#123;annotation.attachment.desktopURI | replace(&quot;select&quot;, &quot;open-pdf&quot;)&#125;&#125;?page=&#123;&#123;annotation.page&#125;&#125;)&#123;% else %&#125;&#123;&#123;pdfLink | replace(r/^\[.*\]/, &quot;&quot;)&#125;&#125;&#123;% endif %&#125;&#123;% endif %&#125;)</span></span><br><span class="line"><span class="code">```</span></span><br><span class="line">&#123;% elif annotation.colorCategory == &quot;Yellow&quot; %&#125;</span><br><span class="line"><span class="code">```ad-detail</span></span><br><span class="line"><span class="code">&#123;&#123;annotation.annotatedText&#125;&#125;(&#123;% if pdfLink %&#125;&#123;% if citeKey %&#125;[&#123;&#123;citeKey&#125;&#125;]&#123;% elif citationKey %&#125;[&#123;&#123;citationKey&#125;&#125;]&#123;% else %&#125;[Link]&#123;% endif %&#125;&#123;% if annotation.attachment.desktopURI and annotation.page %&#125;(&#123;&#123;annotation.attachment.desktopURI | replace(&quot;select&quot;, &quot;open-pdf&quot;)&#125;&#125;?page=&#123;&#123;annotation.page&#125;&#125;)&#123;% else %&#125;&#123;&#123;pdfLink | replace(r/^\[.*\]/, &quot;&quot;)&#125;&#125;&#123;% endif %&#125;&#123;% endif %&#125;)</span></span><br><span class="line"><span class="code">```</span></span><br><span class="line">&#123;% elif annotation.colorCategory == &quot;Red&quot; %&#125;</span><br><span class="line"><span class="code">```ad-todo</span></span><br><span class="line"><span class="code">- [ ] &#123;&#123;annotation.annotatedText&#125;&#125;(&#123;% if pdfLink %&#125;&#123;% if citeKey %&#125;[&#123;&#123;citeKey&#125;&#125;]&#123;% elif citationKey %&#125;[&#123;&#123;citationKey&#125;&#125;]&#123;% else %&#125;[Link]&#123;% endif %&#125;&#123;% if annotation.attachment.desktopURI and annotation.page %&#125;(&#123;&#123;annotation.attachment.desktopURI | replace(&quot;select&quot;, &quot;open-pdf&quot;)&#125;&#125;?page=&#123;&#123;annotation.page&#125;&#125;)&#123;% else %&#125;&#123;&#123;pdfLink | replace(r/^\[.*\]/, &quot;&quot;)&#125;&#125;&#123;% endif %&#125;&#123;% endif %&#125;)</span></span><br><span class="line"><span class="code">```</span></span><br><span class="line">&#123;% endif %&#125;&#123;% endif %&#125;&#123;% if annotation.comment %&#125;&#123;&#123;annotation.comment&#125;&#125;&#123;% endif %&#125;&#123;% endif %&#125;&#123;% endfor %&#125;</span><br></pre></td></tr></table></figure>
+<p>这个模板有几个比较有意思的地方</p>
+<ol type="1">
+<li>元数据单独管理，可以方便迁移，本地链接全部存在元数据中。正文中不存在本地链接，直接复制到别的地方也可以正确的跳转</li>
+<li>它的front-matter部分我直接按照Hexo博客模板给出，这样不仅可以更加方便的管理元数据，还可以让我直接复制粘贴到Hexo当作博文发布</li>
+<li>搭配<a
+target="_blank" rel="noopener" href="https://github.com/valentine195/obsidian-admonition">admonition</a>使用可以实现贴纸效果，笔记一目了然，当然如果不喜欢也可以简化<code>&#123;% for annotation in annotations %&#125;</code>里面的实现</li>
+</ol>
+<p>下面给一些导入之后的效果，每次阅读完文献、整理之后，就形成自己的知识。</p>
+<p><img src="4.png" /></p>
+<p><img src="5.png" /></p>
+<p><img src="6.png" /></p>
+
+        </div>
+
+        
+            <section class="post-copyright">
+                
+                
+                
+                    <p class="copyright-item">
+                        <span>License:</span>
+                        <span>Copyright (c) 2023 <a target="_blank" rel="noopener" href="http://creativecommons.org/licenses/by-nc/4.0/">CC-BY-NC-4.0</a> LICENSE</span>
+                    </p>
+                
+                
+
+            </section>
+        
+        <section class="post-tags">
+            <div>
+                <span>Tag(s):</span>
+                <span class="tag">
+                    
+                    
+                        <a href="/tags/tool/"># tool</a>
+                    
+                        <a href="/tags/research/"># research</a>
+                    
+                        
+                </span>
+            </div>
+            <div>
+                <a href="javascript:window.history.back();">back</a>
+                <span>· </span>
+                <a href="/">home</a>
+            </div>
+        </section>
+        <section class="post-nav">
+            
+                <a class="prev" rel="prev" href="/2022/08/15/16/07/">gdb调试指南</a>
+            
+            
+        </section>
+
+
+    </article>
+</div>
+
+            </div>
+            <footer id="footer" class="footer">
+    <div class="copyright">
+        <span>© Gunther Xing | Powered by <a href="https://hexo.io" target="_blank">Hexo</a> & <a href="https://github.com/Siricee/hexo-theme-Chic" target="_blank">Chic</a></span>
+    </div>
+</footer>
+
+    </div>
+</body>
+
+</html>

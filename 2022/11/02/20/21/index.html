@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="">
+
+<head>
+    <meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <meta name="author" content="Gunther Xing">
+
+
+    <meta name="subtitle" content="A blog site belong to Gunther Xing">
+
+
+
+
+<title>【文献精读】Sinan: ML-Based and QoS-Aware Resource Management for Cloud Microservices | Gunther&#39;s Blog</title>
+
+
+
+    <link rel="icon" href="/J_Drive.ico">
+
+
+
+
+    <!-- stylesheets list from _config.yml -->
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+
+
+
+    <!-- scripts list from _config.yml -->
+    
+    <script src="/js/script.js"></script>
+    
+    <script src="/js/tocbot.min.js"></script>
+    
+
+
+
+    
+    
+        <!-- MathJax配置，可通过单美元符号书写行内公式等 -->
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+    "HTML-CSS": {
+        preferredFont: "TeX",
+        availableFonts: ["STIX","TeX"],
+        linebreaks: { automatic:true },
+        EqnChunk: (MathJax.Hub.Browser.isMobile ? 10 : 50)
+    },
+    tex2jax: {
+        inlineMath: [ ["$", "$"], ["\\(","\\)"] ],
+        processEscapes: true,
+        ignoreClass: "tex2jax_ignore|dno",
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    },
+    TeX: {
+        equationNumbers: { autoNumber: "AMS" },
+        noUndefined: { attributes: { mathcolor: "red", mathbackground: "#FFEEEE", mathsize: "90%" } },
+        Macros: { href: "{}" }
+    },
+    messageStyle: "none"
+    });
+</script>
+<!-- 给MathJax元素添加has-jax class -->
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+<!-- 通过连接CDN加载MathJax的js代码 -->
+<script type="text/javascript" async
+        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+
+
+    
+
+
+<meta name="generator" content="Hexo 6.2.0"></head>
+
+<body>
+    <script>
+        // this function is used to check current theme before page loaded.
+        (() => {
+            const currentTheme = window.localStorage && window.localStorage.getItem('theme') || '';
+            const isDark = currentTheme === 'dark';
+            const pagebody = document.getElementsByTagName('body')[0]
+            if (isDark) {
+                pagebody.classList.add('dark-theme');
+                // mobile
+                document.getElementById("mobile-toggle-theme").innerText = "· Dark"
+            } else {
+                pagebody.classList.remove('dark-theme');
+                // mobile
+                document.getElementById("mobile-toggle-theme").innerText = "· Light"
+            }
+        })();
+    </script>
+
+    <div class="wrapper">
+        <header>
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-header header-logo"><a href="/">Gunther&#39;s Blog</a></div>
+            <div class="menu navbar-right">
+                
+                    <a class="menu-item" href="/archives">Posts</a>
+                
+                    <a class="menu-item" href="/category">Categories</a>
+                
+                    <a class="menu-item" href="/tag">Tags</a>
+                
+                    <a class="menu-item" href="/about">About</a>
+                
+                <input id="switch_default" type="checkbox" class="switch_default">
+                <label for="switch_default" class="toggleBtn"></label>
+            </div>
+        </div>
+    </nav>
+
+    
+    <nav class="navbar-mobile" id="nav-mobile">
+        <div class="container">
+            <div class="navbar-header">
+                <div>
+                    <a href="/">Gunther&#39;s Blog</a><a id="mobile-toggle-theme">·&nbsp;Light</a>
+                </div>
+                <div class="menu-toggle" onclick="mobileBtn()">&#9776; Menu</div>
+            </div>
+            <div class="menu" id="mobile-menu">
+                
+                    <a class="menu-item" href="/archives">Posts</a>
+                
+                    <a class="menu-item" href="/category">Categories</a>
+                
+                    <a class="menu-item" href="/tag">Tags</a>
+                
+                    <a class="menu-item" href="/about">About</a>
+                
+            </div>
+        </div>
+    </nav>
+
+</header>
+<script>
+    var mobileBtn = function f() {
+        var toggleMenu = document.getElementsByClassName("menu-toggle")[0];
+        var mobileMenu = document.getElementById("mobile-menu");
+        if(toggleMenu.classList.contains("active")){
+           toggleMenu.classList.remove("active")
+            mobileMenu.classList.remove("active")
+        }else{
+            toggleMenu.classList.add("active")
+            mobileMenu.classList.add("active")
+        }
+    }
+</script>
+            <div class="main">
+                <div class="container">
+    
+    
+        <div class="post-toc">
+    <div class="tocbot-list">
+    </div>
+    <div class="tocbot-list-menu">
+        <a class="tocbot-toc-expand" onclick="expand_toc()">Expand all</a>
+        <a onclick="go_top()">Back to top</a>
+        <a onclick="go_bottom()">Go to bottom</a>
+    </div>
+</div>
+
+<script>
+    var tocbot_timer;
+    var DEPTH_MAX = 6; // 为 6 时展开所有
+    var tocbot_default_config = {
+        tocSelector: '.tocbot-list',
+        contentSelector: '.post-content',
+        headingSelector: 'h1, h2, h3, h4, h5',
+        orderedList: false,
+        scrollSmooth: true,
+        onClick: extend_click,
+    };
+
+    function extend_click() {
+        clearTimeout(tocbot_timer);
+        tocbot_timer = setTimeout(function() {
+            tocbot.refresh(obj_merge(tocbot_default_config, {
+                hasInnerContainers: true
+            }));
+        }, 420); // 这个值是由 tocbot 源码里定义的 scrollSmoothDuration 得来的
+    }
+
+    document.ready(function() {
+        tocbot.init(obj_merge(tocbot_default_config, {
+            collapseDepth: 1
+        }));
+    });
+
+    function expand_toc() {
+        var b = document.querySelector('.tocbot-toc-expand');
+        var expanded = b.getAttribute('data-expanded');
+        expanded ? b.removeAttribute('data-expanded') : b.setAttribute('data-expanded', true);
+        tocbot.refresh(obj_merge(tocbot_default_config, {
+            collapseDepth: expanded ? 1 : DEPTH_MAX
+        }));
+        b.innerText = expanded ? 'Expand all' : 'Collapse all';
+    }
+
+    function go_top() {
+        window.scrollTo(0, 0);
+    }
+
+    function go_bottom() {
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+    function obj_merge(target, source) {
+        for (var item in source) {
+            if (source.hasOwnProperty(item)) {
+                target[item] = source[item];
+            }
+        }
+        return target;
+    }
+</script>
+    
+
+    
+    <article class="post-wrap">
+        <header class="post-header">
+            <h1 class="post-title">【文献精读】Sinan: ML-Based and QoS-Aware Resource Management for Cloud Microservices</h1>
+            
+                <div class="post-meta">
+                    
+
+                    
+                        <span class="post-time">
+                        Date: <a href="#">November 2, 2022&nbsp;&nbsp;20:21:38</a>
+                        </span>
+                    
+                    
+                        <span class="post-category">
+                    Category:
+                            
+                                <a href="/categories/Research/">Research</a>
+                            
+                        </span>
+                    
+                </div>
+            
+        </header>
+
+        <div class="post-content">
+            <h2 id="abstract">Abstract</h2>
+<p>随着云应用逐渐从大型集成的整块向形成大量的、松散耦合的微服务构成转化，其中除了一系列的好处之外，同时也产生了一些问题。例如微服务中的依赖关系使得资源管理更复杂化了，因为它们会引发背压效应，加剧QoS违背。<br />
+本文提出了Sinan，一个由数据驱动的、在线的、关注QoS的交互式云微服务集群管理系统。Sinan使用了一系列可扩展的、经过验证的机器学习模型，以优化端到端的尾延时为目的出发，使用机器学习模型决定依赖间的性能影响以及为每一层分配合适的资源。本文同时在专用的本地集群以及Google
+Compute
+Engine上部署的端到端应用数据上进行了验证，Sinan在保持高的资源利用率的情况下，同时能够很好的保证QoS。<br />
+此外，Sinan的技术是可以解释的，这意味着云运营商可以从机器学习模型中获得如何更好地部署和设计应用程序以减少不良性能情况的出现。</p>
+<h2 id="overview">Overview</h2>
+<h3 id="问题构造">问题构造</h3>
+<p>目前的微服务框架是由多个具有依赖性的微服务构成的土结构，其中每种微服务都有着不同的资源需求、伸缩需求以及副本状态。Sinan关注与以尾延时作为QoS限制的复杂的、交互性的微服务中的资源管理。<br />
+大多数集群资源管理模块主要关注CPU和内存，而微服务通常为“无状态”的，因此Sinan优先考虑分配CPU资源，同时在单核和多核粒度通过Docker
+API控制Linux cgroups来实现。</p>
+<h3 id="研究的应用数据集之一">研究的应用（数据集之一）</h3>
+<p>用了两个端到端的交互式应用：一个酒店预定服务，一个社交网络</p>
+<h4 id="酒店预定服务">酒店预定服务</h4>
+<p>服务支持利用地理位置搜索酒店、预定以及推荐。其由Go实现，层与层之间通过gRPC交流。数据端使用memcached作为内存缓存，MongoDB作用作持久化。</p>
+<h4 id="社交网络">社交网络</h4>
+<p>用户可以创建带有文字、多媒体、链接以及提及他人的推文，随后该推文会被广播到用户所有的粉丝。图片会通过一个图片过滤器，文字也会通过一个文字过滤器，违反用户守则的内容会被丢弃。用户可以根据他们的时间线阅读推文，我们使用Read98社交网络来组织用户数据。用户活动遵循
+Twitter 的用户行为，文本长度分布模拟 Twitter
+的文本长度分布（这两个模拟有研究支撑）。</p>
+<h3 id="挑战和机器学习任务的需求">挑战和机器学习任务的需求</h3>
+<ol type="1">
+<li>不同层级服务之间的依赖关系：微服务之间的依赖关系并不是完美的流水线形式，因此会产生背压效应，而且还难以监测和预防。因此资源调度器需要有微服务的全局视角以及可以预测依赖带来的端到端的性能影响。<br />
+</li>
+<li>系统的复杂性：这意味着需要在以一个特定规则对于每一个微服务形成的资源分配策略的空间中搜索。之前的方法有用资源利用率或延时来指导分配策略的，队列的方法则是使用队列长度来刻画系统状态。但是这些方法在有着大量依赖关系的复杂的微服务系统中都不可使用。<br />
+</li>
+<li>队列延迟效应：当资源减少时，QoS并不会很快被违反，因为队列还有一些长度，有堆积的空间，需要时间产生堆积。反之亦然，当QoS被触发时，就算及时采取了增加资源的行动，堆积的队列也需要一定时间去消耗。因此我们需要机器学习的方法来根据长期的资源分配特征进行资源分配，避免资源减少的太过于迅速，而且需要能够防御性的进行资源增加（蓝线）</li>
+<li>资源分配空间的边界：对于资源管理模块来说，快速确定资源分配的边界以满足QoS的同时分配尽量少的资源是非常重要的，但是现有的方法要不是在巨大的空间中随机探索，要不是根据历史数据进行学习，这两种方法往往不能找到特别靠近边界的解。随机探索是盲目的，而历史数据中往往会多分配资源，由此产生了一定的偏差。</li>
+</ol>
+<h2 id="提出的方法">提出的方法</h2>
+<p>Sinan使用了一个机器学习模型来学习端到端性能的依赖特征，以及执行分配决策。同时还设计了一个高效的空间搜索算法以搜索资源分配空间，特别是可能会引发QoS违反的边界区域。</p>
+<p>Sinan的机器学习模型可以预测端到端的延时以及给定一个资源分配情况下，通过系统状态和历史信息预测QoS违背的概率。<br />
+从宏观上来看，Sinan的工作流可以被分为：</p>
+<ol type="1">
+<li>数据收集模块使用一个精细设计的搜索算法来收集训练数据（解决挑战4）<br />
+</li>
+<li>通过收集到的数据，Sinan训练了两个机器学习模型：一个卷积神经网络（CNN），一个bosted
+trees（BT），CNN通过预测未来一段时间的端到端的尾延时解决挑战1和2，BT则解决挑战3，预测未来发生QoS侵犯的概率，来解释系统在队列方面的特征。<br />
+</li>
+<li>运行过程中，Sinan计算瞬时的尾延时以及即将可能发生的QoS违反，然后根据QoS限制来调整资源分配。<br />
+</li>
+<li>如果应用或者底层的系统在任何时间发生改变，Sinan将会重新训练对应的模型</li>
+</ol>
+<h3 id="机器学习模型">机器学习模型</h3>
+<p>Sinan的目的是通过一个特定的资源分配情况准确的预测应用的性能。调度器可以对于每个微服务通过可能的资源分配情况查询模型，以选择一个最优的资源分配情况，以满足QoS。<br />
+挑战3指出，资源分配决策的影响要在一段时间之后才能发挥作用，因此需要训练一个神经网络来预测未来一段时间内的时延分布。但是经过实验发现，随着预测的未来更远，预测精度会急剧下降。因此预测仅仅是根据目前收集到的和过去历史的指标得出的，这些足够预测很近的未来，但是很难捕捉到未来一段时间后发生演变的微服务之间的依赖关系。</p>
+<p>为了解决这个问题，我们设计了一个两阶段的模型，首先，利用一个卷积神经网络来预测下一个时间戳的端到端尾延时，接着利用一个Boosted
+Trees（BT）模型根据CNN抽取出来的特征来估计未来的QoS违背概率。BT有着相对更少的超参数，因此比较不容易发生overfitting。我们称CNN模型为短期延迟预测器，将BT模型称为长期违规预测器。<br />
+时延预测器<br />
+卷积神经网络需要同时学习到微服务之间的依赖关系与资源使用和应用性能的时序特征。因此，应用的拓扑结构和时序信息都要被编码成CNN的输入，它包含如下几个部分：</p>
+<ol type="1">
+<li>一个三维的tensor，包含一个历史时间窗口内的每一层的资源使用情况<br />
+</li>
+</ol>
+<ul>
+<li>ay维对应不同的微服务，连续的列对应连续的层<br />
+</li>
+<li>bx维对应时序特征，一行对应一个时间戳<br />
+</li>
+<li>cz维（通道数）对应不同的资源使用指标，包括CPU利用率、内存使用、以及网络使用等等，这些都直接通过Docker的cgroup接口得到。<br />
+</li>
+</ul>
+<ol start="2" type="1">
+<li>历史时间窗口内的端到端的延时分布矩阵（2维）<br />
+</li>
+</ol>
+<ul>
+<li>ax维是T个时间戳<br />
+</li>
+<li>by维是不同延时（95%-99%）的向量<br />
+</li>
+</ul>
+<ol start="3" type="1">
+<li>待测试的下一个时间戳的资源分配策略，同样也被编码成了一个矩阵<br />
+</li>
+</ol>
+<ul>
+<li>ax维是N层<br />
+</li>
+<li>by维是CPU限制</li>
+</ul>
+<p>损失函数的设计过程如下：<br />
+首先，使用了一个比较常见的均方差损失：<br />
+<span class="math display">\[
+\mathcal{L}(X, \hat{y},
+W)=\sum_{i}^{n}\left(\hat{y}_{i}-f_{W}\left(x_{i}\right)\right)^{2}
+\]</span></p>
+<p>但是考虑到鉴于交互式微服务的飙升行为导致非常高的延迟，如果用上面的损失函数会造成在训练集上的过拟合现象，实际部署的时候就会导致延时预测高了。由于延时预测器目的是在满足尾延时要求的情况下找到最优的资源分配策略，因此损失函数可以更偏向满足QoS的训练样本，因此选择使用了一个缩放函数，在计算损失函数之前同时缩放预测的尾延时和实际的尾延时。<br />
+<span class="math display">\[
+\phi(x)=\left\{\begin{array}{ll}
+x &amp; x \leq t \\
+t+\frac{x-t}{1+\alpha(x-t)} &amp; x&gt;t
+\end{array}\right.
+\]</span></p>
+<p>其中，延时范围为(0,
+t)，alpha是超参，可以根据不同的衰减策略进行调整。</p>
+<h3 id="qos违背预测器">QoS违背预测器</h3>
+<p>违背预测器解决一个二分类任务，预测一个给定的分配策略是否在未来会引发QoS违背。<br />
+出于计算消耗和减少过拟合的可能考虑，
+BT模型将利用CNN输出的Lf作为输入，同时还将k个时间戳的以同样的资源配置作为输入。<br />
+每一个树的叶子结点有一个分数，代表发生了违背或没有发生违背，将发生违背的所有分数加起来得到Sv，没有发生违背的所有分数加起来得到SNV，则发生违背的概率可以由softmax得到</p>
+<h2 id="系统设计">系统设计</h2>
+<h3 id="系统架构">系统架构</h3>
+<p>当收到用户请求时，Sinan 通过 Docker 和 Jaeger
+收集资源和性能指标，将收集到的指标输入机器学习模型，并使用模型的输出来相应地为每一层分配资源。分配决策定期在线重新评估。<br />
+Sinan将1秒作为一个决策区间，周期性的给出决策，这和延时的QoS要求保持一致。<br />
+Centralized
+Scheduler向分布式的系统询问，以获得每一层的CPU、内存以及网络使用情况，除此之外，还向API网关询问用户负载统计信息。<br />
+每一层的所有副本的资源用量都会在送入模型之前取平均<br />
+根据模型的输出结果，Sinan 选择一个满足 QoS
+的分配向量，使用最少的资源，并将其决策传递给每个节点的代理执行。</p>
+<h3 id="资源分配空间搜索">资源分配空间搜索</h3>
+<p>对于每一个微服务的层，看作是多臂老虎机的一个手臂，则问题可以被建模成一个多臂老虎机问题。对于每一层，将其资源分配情况和端到端的延时映射成一个伯努利分布，定于信息获取值为对一层分配特定的资源总量，其对应的伯努利分布对于概率p的置信区间减少的期望。每一步，我们对于每一层选择采用其信息获取值最大的动作。</p>
+<p><span class="math display">\[
+\begin{array}{c}
+o p_{T}^{s}=\arg \max _{o p} C_{o p}
+\cdot\left(\sqrt{\frac{p(1-p)}{n}}-p
+\sqrt{\frac{p_{+}\left(1-p_{+}\right)}{n+1}}\right. \\
+-(1-p) \sqrt{\left.\frac{p_{-}\left(1-p_{-}\right)}{n+1}\right)}
+\end{array}
+\]</span></p>
+<p>通过最大化上式，算法被鼓励去寻找以最小资源量满足QoS的边界点，因为完全满足或者违背QoS的分配所得到的信息都几乎为0，该算法优先探索对
+QoS 影响不确定的资源分配，如 p = 0.5的资源分配。<br />
+为了精简操作空间，Sinan 对数据收集和在线调度都实施了一些规则*。</p>
+<h2 id="实验和结果">实验和结果</h2>
+<p>分别在local和Google Claster Engine上进行了试验<br />
+本地配置：<br />
+本地集群有4个80核的服务器，每个服务器有256GB 的
+RAM。我们分别为酒店预订和社交网络收集了31302和58499个样本，使用我们的数据收集过程，并将它们以9:1的比例分割成训练和验证集，然后进行随机重组。数据收集代理分别为社交网络和酒店预订运行16小时和8.7小时，收集更多的训练样本并不能进一步提高准确性。</p>
+<p>可解释性*</p>
+
+        </div>
+
+        
+            <section class="post-copyright">
+                
+                
+                
+                    <p class="copyright-item">
+                        <span>License:</span>
+                        <span>Copyright (c) 2023 <a target="_blank" rel="noopener" href="http://creativecommons.org/licenses/by-nc/4.0/">CC-BY-NC-4.0</a> LICENSE</span>
+                    </p>
+                
+                
+
+            </section>
+        
+        <section class="post-tags">
+            <div>
+                <span>Tag(s):</span>
+                <span class="tag">
+                    
+                    
+                        <a href="/tags/QoS-Prediction/"># QoS Prediction</a>
+                    
+                        <a href="/tags/Machine-Learning/"># Machine Learning</a>
+                    
+                        <a href="/tags/Resource-Allocation/"># Resource Allocation</a>
+                    
+                        
+                </span>
+            </div>
+            <div>
+                <a href="javascript:window.history.back();">back</a>
+                <span>· </span>
+                <a href="/">home</a>
+            </div>
+        </section>
+        <section class="post-nav">
+            
+                <a class="prev" rel="prev" href="/2023/02/17/11/51/">用通俗易懂的语言介绍分布式系统中的CAP理论</a>
+            
+            
+            <a class="next" rel="next" href="/2022/10/25/11/18/">【文献精读】Towards Accurate Prediction for High-Dimensional and Highly-Variable Cloud Workloads with Deep Learning</a>
+            
+        </section>
+
+
+    </article>
+</div>
+
+            </div>
+            <footer id="footer" class="footer">
+    <div class="copyright">
+        <span>© Gunther Xing | Powered by <a href="https://hexo.io" target="_blank">Hexo</a> & <a href="https://github.com/Siricee/hexo-theme-Chic" target="_blank">Chic</a></span>
+    </div>
+</footer>
+
+    </div>
+</body>
+
+</html>

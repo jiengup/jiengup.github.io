@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="">
+
+<head>
+    <meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <meta name="author" content="Gunther Xing">
+
+
+    <meta name="subtitle" content="A blog site belong to Gunther Xing">
+
+
+
+
+<title>【文献精读】Towards Accurate Prediction for High-Dimensional and Highly-Variable Cloud Workloads with Deep Learning | Gunther&#39;s Blog</title>
+
+
+
+    <link rel="icon" href="/J_Drive.ico">
+
+
+
+
+    <!-- stylesheets list from _config.yml -->
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+
+
+
+    <!-- scripts list from _config.yml -->
+    
+    <script src="/js/script.js"></script>
+    
+    <script src="/js/tocbot.min.js"></script>
+    
+
+
+
+    
+    
+        <!-- MathJax配置，可通过单美元符号书写行内公式等 -->
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+    "HTML-CSS": {
+        preferredFont: "TeX",
+        availableFonts: ["STIX","TeX"],
+        linebreaks: { automatic:true },
+        EqnChunk: (MathJax.Hub.Browser.isMobile ? 10 : 50)
+    },
+    tex2jax: {
+        inlineMath: [ ["$", "$"], ["\\(","\\)"] ],
+        processEscapes: true,
+        ignoreClass: "tex2jax_ignore|dno",
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    },
+    TeX: {
+        equationNumbers: { autoNumber: "AMS" },
+        noUndefined: { attributes: { mathcolor: "red", mathbackground: "#FFEEEE", mathsize: "90%" } },
+        Macros: { href: "{}" }
+    },
+    messageStyle: "none"
+    });
+</script>
+<!-- 给MathJax元素添加has-jax class -->
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+<!-- 通过连接CDN加载MathJax的js代码 -->
+<script type="text/javascript" async
+        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+
+
+    
+
+
+<meta name="generator" content="Hexo 6.2.0"></head>
+
+<body>
+    <script>
+        // this function is used to check current theme before page loaded.
+        (() => {
+            const currentTheme = window.localStorage && window.localStorage.getItem('theme') || '';
+            const isDark = currentTheme === 'dark';
+            const pagebody = document.getElementsByTagName('body')[0]
+            if (isDark) {
+                pagebody.classList.add('dark-theme');
+                // mobile
+                document.getElementById("mobile-toggle-theme").innerText = "· Dark"
+            } else {
+                pagebody.classList.remove('dark-theme');
+                // mobile
+                document.getElementById("mobile-toggle-theme").innerText = "· Light"
+            }
+        })();
+    </script>
+
+    <div class="wrapper">
+        <header>
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-header header-logo"><a href="/">Gunther&#39;s Blog</a></div>
+            <div class="menu navbar-right">
+                
+                    <a class="menu-item" href="/archives">Posts</a>
+                
+                    <a class="menu-item" href="/category">Categories</a>
+                
+                    <a class="menu-item" href="/tag">Tags</a>
+                
+                    <a class="menu-item" href="/about">About</a>
+                
+                <input id="switch_default" type="checkbox" class="switch_default">
+                <label for="switch_default" class="toggleBtn"></label>
+            </div>
+        </div>
+    </nav>
+
+    
+    <nav class="navbar-mobile" id="nav-mobile">
+        <div class="container">
+            <div class="navbar-header">
+                <div>
+                    <a href="/">Gunther&#39;s Blog</a><a id="mobile-toggle-theme">·&nbsp;Light</a>
+                </div>
+                <div class="menu-toggle" onclick="mobileBtn()">&#9776; Menu</div>
+            </div>
+            <div class="menu" id="mobile-menu">
+                
+                    <a class="menu-item" href="/archives">Posts</a>
+                
+                    <a class="menu-item" href="/category">Categories</a>
+                
+                    <a class="menu-item" href="/tag">Tags</a>
+                
+                    <a class="menu-item" href="/about">About</a>
+                
+            </div>
+        </div>
+    </nav>
+
+</header>
+<script>
+    var mobileBtn = function f() {
+        var toggleMenu = document.getElementsByClassName("menu-toggle")[0];
+        var mobileMenu = document.getElementById("mobile-menu");
+        if(toggleMenu.classList.contains("active")){
+           toggleMenu.classList.remove("active")
+            mobileMenu.classList.remove("active")
+        }else{
+            toggleMenu.classList.add("active")
+            mobileMenu.classList.add("active")
+        }
+    }
+</script>
+            <div class="main">
+                <div class="container">
+    
+    
+        <div class="post-toc">
+    <div class="tocbot-list">
+    </div>
+    <div class="tocbot-list-menu">
+        <a class="tocbot-toc-expand" onclick="expand_toc()">Expand all</a>
+        <a onclick="go_top()">Back to top</a>
+        <a onclick="go_bottom()">Go to bottom</a>
+    </div>
+</div>
+
+<script>
+    var tocbot_timer;
+    var DEPTH_MAX = 6; // 为 6 时展开所有
+    var tocbot_default_config = {
+        tocSelector: '.tocbot-list',
+        contentSelector: '.post-content',
+        headingSelector: 'h1, h2, h3, h4, h5',
+        orderedList: false,
+        scrollSmooth: true,
+        onClick: extend_click,
+    };
+
+    function extend_click() {
+        clearTimeout(tocbot_timer);
+        tocbot_timer = setTimeout(function() {
+            tocbot.refresh(obj_merge(tocbot_default_config, {
+                hasInnerContainers: true
+            }));
+        }, 420); // 这个值是由 tocbot 源码里定义的 scrollSmoothDuration 得来的
+    }
+
+    document.ready(function() {
+        tocbot.init(obj_merge(tocbot_default_config, {
+            collapseDepth: 1
+        }));
+    });
+
+    function expand_toc() {
+        var b = document.querySelector('.tocbot-toc-expand');
+        var expanded = b.getAttribute('data-expanded');
+        expanded ? b.removeAttribute('data-expanded') : b.setAttribute('data-expanded', true);
+        tocbot.refresh(obj_merge(tocbot_default_config, {
+            collapseDepth: expanded ? 1 : DEPTH_MAX
+        }));
+        b.innerText = expanded ? 'Expand all' : 'Collapse all';
+    }
+
+    function go_top() {
+        window.scrollTo(0, 0);
+    }
+
+    function go_bottom() {
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+    function obj_merge(target, source) {
+        for (var item in source) {
+            if (source.hasOwnProperty(item)) {
+                target[item] = source[item];
+            }
+        }
+        return target;
+    }
+</script>
+    
+
+    
+    <article class="post-wrap">
+        <header class="post-header">
+            <h1 class="post-title">【文献精读】Towards Accurate Prediction for High-Dimensional and Highly-Variable Cloud Workloads with Deep Learning</h1>
+            
+                <div class="post-meta">
+                    
+
+                    
+                        <span class="post-time">
+                        Date: <a href="#">October 25, 2022&nbsp;&nbsp;11:18:36</a>
+                        </span>
+                    
+                    
+                        <span class="post-category">
+                    Category:
+                            
+                                <a href="/categories/Research/">Research</a>
+                            
+                        </span>
+                    
+                </div>
+            
+        </header>
+
+        <div class="post-content">
+            <h1
+id="基于深度学习方法的多维易变云服务负载的精准预测">基于深度学习方法的多维易变云服务负载的精准预测</h1>
+<h2 id="摘要">摘要</h2>
+<p>适应性强以及精准的云服务负载的预测对于云计算的资源分配是非常必要的。然而，现有的方法并不能够有效的预测多维度的、不稳定的云服务负载，这往往导致了云服务资源的浪费以及违背对于用户的服务水平协议（SLAs）。循环神经网络（RNN）往往对于序列数据的分析非常有效，因此它近期被应用于解决负载预测问题。然而，RNN在学习长期依赖的表现十分不足，从而不能对于负载进行精确的预测。为了解决这个关键的问题，我们提出了一种基于深度学习的方法Prediction
+Algorithm for cloud
+Workloads（L-PAW）。首先，设计了一个上层的自动编码器（TSA）以从原始的高维度的负载数据中抽取负载间的潜在关系。接着，我们整合了TSA以及门循环单元（GRU）块形成一个循环神经网络以达到适应性强以及精确的对于易变的负载的预测。利用Google和阿里巴巴公司数据中心的真实数据在DUX-based的集群下进行了实验以对L-PAW进行实现以及实验。我们在不同类别的负载用变化的预测长度对L-PAW的适应性和有效性进行了验证。实验结果表明L-PAW对比于传统的RNN-based方法以及其他的负载预测的方法在多维易变的负载数据上达到了非常好的预测精度。
+## 1. 引入
+作为非常普遍的范例计算范例之一的云计算为用户提供了需求可变的计算、存储以及网络资源。并且在用户和服务提供商之间保证了服务水平协议（SLAs）。当用户请求同时到达的时候，云服务负载会突发导致云资源不能有效的访问。相反的，云服务资源在一个低水平状态一直挂起也同样会导致资源的浪费。云服务负载的变化导致了资源的过度分配或者欠分配，从而导致了不必要的资源浪费或者违反SLA的现象。因此，云服务提供商必须能够迅速的变换资源分配的策略以保证SLA的同时提升云服务资源的利用率。为了达到这些目标，快速的以及适应性强的五仔预测方法对于云计算服务来说是非常必要的。通过对于未来负载情况的精准预测，可以通过提前配置和分配资源以更加有效的以及合理的分配。因此，云计算服务的负载预测面临以下的两大挑战：
+1.
+负载特征的高可变性。负载的特征（例如谷歌云数据中心的负载会随机变化[5]以及高相关性的周期性的DUX-based集群负载）在不同的时间粒度上（例如秒级和天级）一直在变化。根据对于阿里巴巴云数据中心的分析报告，他们的平均CPU利用率在一天之内能从5%到80%之间变化，且波动特别高。这种负载特征的易变特征使得精确有效的负载预测十分困难。
+2.
+负载数据的高维度。云计算服务中的负载数据通常有着高维度的问题。例如，对于一个有着1000个工作机器的云数据中心需要讲一个1000维的负载数据作为预测模型的输入用作训练。这些高维度的数据有非常多的冗余信息以及噪声，这不仅对负载预测造成了更多误差，并且会导致预测模型造成更高的计算消耗。
+为了应对负载特征的高可变性，用户负载特征之间的相互关系必须被有效的捕捉到并且利用起来以得到一个准确的负载预测方法，这样才能使得算法可以使用各种各样的负载。以应对负载数据高维度的挑战，原属负载数据的特征需要进行进一步的分析以及抽取，减少负载数据的维度以及预测误差以得到更加有效准确的负载预测。</p>
+<p>有关负载预测的问题受到了研究者的大量关注，然而，许多经典的方法是基于回归理论、启发式或者传统的人工神经网络的，这些方法往往需要负载数据相对常规，或者具备清晰的趋势以达到精准预测。同时，传统的神经网络没有充分利用网络结构中神经元的相关性。因此，这些方法不能有效的实现对于高可变性的负载数据的精准预测。另外，大多数方法关注的都是一些小体量的活着高性能的计算机系统中的负载，这些情景下负载的变化情况相对大体量的云计算系统（例如云数据中心）更加简单。因此，这些算法也不能很好的适应具有高可变负载的真实的云计算环境，在这样的环境下它们的预测准确率会大打折扣。</p>
+<p>由于RNN对于序列数据处理的优秀能力，它可以用于解决高可变负载的预测问题。然而，训练一个高效的RNN是一个潜在的挑战。因为存在提督小时的问题，传统的RNN不能有效的学习长存依赖。一些衍生的RNN，例如长短式记忆神经网络（LSTM）以及门循环单元（GRU），被提出具有强大的能力解决长存依赖的问题。特别的，对比于LSTM，GRU不进可以达到优秀的预测准确性，而且还有着更少的参数以使得训练过程更加高效。</p>
+<p>然而，由于负载数据的高维特点，训练一个基于RNN的预测模型是一个非常费时的任务，具有庞大的计算复杂度。为了解决这个问题，一个可行的方法是通过抽取潜在的特征表达来减少负载数据的维度。一些方法可以有效的减少数据的维度例如主成分分析（PCA）以及自动编码器（auto-encoder）。然而，PCA依赖线性方法去寻找高维数据中最大偏差的方向，这限制了可减少维度的类型。相对的，基于自动编码器的方法（例如sparse
+auto-encoder）克服了这个限制。它引入了非线性的神经网络。但是传统的自动编码器常常过度使用了隐藏单元，这回导致在负载数据上减少维度变得十分低效。</p>
+<p>为了解决负载预测中这些潜在的挑战，我们首先设计了一个顶部稀疏的自动编码器（top-sparse
+auto-encoder，TSA）以有效的减少负载数据的维度。接着，经过压缩的负载数据被当作输入喂入云负载基于深度学习的预测算法（L-PAW），为了增加适应性、实际应用价值以及对于高可变负载数据的有效预测，本篇研究的主要贡献总结如下：
+-
+设计了一个顶部稀疏的自动编码器以有效的从原始数据中抽取低维度的潜在的特征表达，这使得负载数据可以被有效的压缩，而仅仅需要考虑的是通过高层的活跃度；奥选择隐藏单元的个数。
+-
+提出了一个高效的基于深度学习的预测算法用于预测云服务的负载数据。该算法可以通过整合TSA和GRU块的RNN中有效的学习历史负载数据中的长存依赖。L-PAW算法可以非常好的适应变化多端的负载数据并且通过利用GRU中设置的更新门和重置门来捕捉潜在的历史信息实现精确的负载预测。
+-
+利用真实生产环境下的负载数据进行了模拟实验，以验证提出的L-PAW算法在云负载预测上的有效性和适应性。结果表明L-PAW相对于传统的基于RNN的算法以及其他预测方法在高维度、高可变性的真实云负载数据上表现得更好。</p>
+<h2 id="预备工作">2. 预备工作</h2>
+<p>在这个章节，我们讲简短的介绍稀疏自动编码器（SA）以及循环神经网络，基于这两个技术的基本原理，我们可以解决云服务负载上高维度高可变性的问题。</p>
+<h3 id="稀疏自动编码器">2.1 稀疏自动编码器</h3>
+<p>稀疏自动编码器可以从没有标签的数据中自动的学习潜在的特征，在实际应用中，这些被SA抽取出来的特征表达可以被用于替换原始的数据，这常常能够让人工神经网络的学习过程表现地更好。更重要的是，SA仅仅用了一层隐藏层来构造，这会使得输出数据和输入数据尽量相似。并且，隐藏层必须满足特定的稀疏度，这也意味着隐藏层不能够携带过多的信息。因此，输入数据会被压缩到隐藏层里，然后在输出层解压。
+SA学习一个函数 <span class="math inline">\(y_{i}=f\left(W x_{i}+b\right)
+\approx x_{i}\)</span> ，其中<span
+class="math inline">\(x_i\)</span>以及<span
+class="math inline">\(y_i\)</span>是属于n维的实数集。换句话说，SA的目的是拟合一个函数使得输出<span
+class="math inline">\(y_i\)</span>可以和输入<span
+class="math inline">\(x_i\)</span>足够的接近。在这个过程中，一些重要的特征会从输入数据中被抽取出来。另外，输入数据可以被隐藏层替换（例如，隐藏层的神经元），以此来达到数据压缩的作用。尽管隐藏层单元的个数可能非常大，输入数据的潜在特征仍然可以通过加入稀疏约束被找到。特别的如果<span
+class="math inline">\(a^{(h)}_j\)</span>用来表示隐藏单元<span
+class="math inline">\(j\)</span>的激活度，那么它的平均值<span
+class="math inline">\(\hat{\rho}_j\)</span>，可以按照以下的方式计算：
+<span class="math display">\[
+\hat{\rho}_j=\frac{1}{n}\sum_{i=1}^{n}\left[a^{(h)}_j\left(x_i\right)\right]
+\]</span> <span
+class="math inline">\(\hat{\rho}_j\)</span>被强制拟合为<span
+class="math inline">\(\rho\)</span>，其中<span
+class="math inline">\(\rho\)</span>是稀疏度参数，应该趋近于0以满足隐藏层的稀疏度限制。因此，下述的这个项作为当<span
+class="math inline">\(\hat{\rho}_j\)</span>严重偏离<span
+class="math inline">\(\rho\)</span>时候的惩罚项： <span
+class="math display">\[
+\sum_{j=1}^{N_h}\rho\ln{\frac{\rho}{\hat{\rho}_j}}+(1-\rho)\ln{\frac{1-\rho}{1-\hat{\rho}_j}}
+\]</span> 其中<span
+class="math inline">\(N_h\)</span>是隐藏单元的数目，上述的公式同样也可以根据Kullback-Leibler
+(KL) divergence以<span class="math inline">\(\textstyle
+\sum_{j=1}^{N_h}KL(\rho||\hat{\rho}_j)\)</span>给出
+作为衡量两个特定分布差异登记的标准函数，当<span
+class="math inline">\(\hat{\rho}_j\)</span>与<span
+class="math inline">\(\rho\)</span>足够接近时，能够达到最小KL差异，这也意味着最小化惩罚项的过程对于<span
+class="math inline">\(\hat{\rho}_j\)</span>与<span
+class="math inline">\(\rho\)</span>的近似同样有作用。因此，SA整体的损失函数，<span
+class="math inline">\(J_{sparse}(W,b)\)</span>，按照如下方式定义： <span
+class="math display">\[
+J_{sparse}(W, b) = J(W, b) + \beta\sum_{j=1}^{N_h}KL(\rho||\hat{\rho}_j)
+\]</span> 其中<span class="math inline">\(J(W,
+b)\)</span>时神经网络的损失函数，<span
+class="math inline">\(\beta\)</span>是控制稀疏度惩罚项的权重。 ### 2.2
+循环神经网络
+循环神经网络强调了隐藏层神经元之间的联系，这可以利用历史数据解决序列问题。特别的，传统神经网络中的隐藏层是全连接或者部分连接的，但是不同神经网络间的神经元是不联系的。相反的，RNN的目的是利用一个序列去构造历史数据与目前状态的关系。因此，RNN中的隐藏层之间的神经元是有连接的。这也意味着隐藏层的输入不仅仅只有当前时刻的输入层数据，同时也包括前面时刻的隐藏层的输出数据。典型的RNN的结构如图1所示，RNN的链接属性同样也揭示了与序列过程的潜在联系。
+基于历史数据和目前的输入，未来的输出可以被按照以下的过程预测： <span
+class="math display">\[
+s_{t}=\tanh \left(U \cdot x_{t}+W \cdot s_{t-1}\right),
+y_{t}=\operatorname{softmax}\left(V \cdot s_{t}\right)
+\]</span> 其中<span class="math inline">\(s_t,x_t\)</span>以及<span
+class="math inline">\(y_t\)</span>表示了隐藏层的状态，输入以及t时刻的输出。</p>
+<p><img src="Pasted%20image%2020220310170808.png" /></p>
+<h2 id="相关的工作">3. 相关的工作</h2>
+<p>云计算环境的负载预测吸引了许多研究者的关注，同时许多学术的贡献也突出了这个问题的重要性。在这个章节，我们首先回顾了负载预测的经典的方法，然后给出了基于RNN的方法。
+### 负载预测的经典方法
+基于自回归（auto-regression，AR）的预测模型是利用历史的CPU时许数据去预测未来的负载。然而，这个模型本质上是严格线性的，缺乏对于在负载的云服务环境中的高可变性的负载的适应性。线性回归（LR）以及小波神经网络（WNN）被用作负载的短期预测。Kumar和Singh了通过组合人工神经网络（ANN）以及自适应的差分进化算法提出了一个负载预测模型，但是这种方法难以去决定一个合适的学习率。作者利用k临近（k-NN）提出了两个相关的过滤技术以在多种多样的多核系统中提高负载预测中的表现。但是k临近方法非常的低效，这往往导致了巨大的计算开销。Swarm以及进化优化算法被用作训练神经网络以预测主机的利用率，但是这个方法会难以选择合适的参数（例如变异系数和交叉率）。Kaur等人为特定应用的CPU利用率开发了一个集成的预测模型，这个模型会考虑8种基于回归的预测模型的平均准确率作为最终的预测结果。然而，这个方法对于需要长时间训练的模型来说非常受限。
+总的来说，大多数经典的时序预测方法是基于启发式、传统的神经网络或者回归的方法。因此，它们需要负载有着明显的规律或者显著的趋势以获得预测精度。例如，不利用神经元之间的相关性，传统的神经网络不能够达成精确的有效预测。并且，这些方法主要都是在一些小批量的或者高性能的计算机系统中进行的预测，这些数据对比大批量的云数据中心往往有着更小的差异。为了有效的解决这些重要的问题并且在云服务环境中高可变的负载上达到更好的预测表现，需要更加智能的策略。RNN这种针对序列数据的框架的出现，给了云负载预测一个巨大的潜力。
+### 3.2 负载预测中基于RNN的方法
+RNN强调了隐藏层神经元之间的连接性以通过神经网络中历史的数据有效的处理序列问题。在过去的几年里，RNN同样被用于处理负载预测问题。Zhang等提出了一个基于RNN的模型，提高了负载预测的准确率。相似的，经典的RNN框架被用于预测云数据中心的未来的负载。结果表明RNN可以很好的处理短程依赖关系。然而，RNN耶被证明了不能有效的保证长程的预测。这是由于传统的RNN不能够解决训练过程中梯度消失的问题。因此，RNN会随着预测值以及历史信息的距离增大失去连接能力以及使用有效信息的能力。这个问题被定义为长效依赖问题。为了更好的解决长效依赖问题，LSTM作为RNN的改进版本被提出来，Song等使用了LSTM预测主机的负载，结果表明LSTM表现的比之前的RNN更优。相似的，一个使用基于LSTM的进行联结学习的模型被提出以捕捉不同的资源指标以达到对未来负载情况的精准预测。相比较于LSTM，GRU能够在更少的设置参数的情况下更容易收敛。但是，仍然有一些研究表明使用基于GRU的方法用于云负载预测存在训练效率的问题。
+总的来说，大多数基于RNN的方法依赖于传统的RNN架构，这不能进不能解决梯度消失的问题，同样也不能解决长效依赖的问题。因此，他们不能够在高偏差或者显示生产环境中的云负载中学习到精准的预测结果，复杂的数据往往会让预测准确性和效率大打折扣。尽管现如今存在着部分研究提出用RNN的改进版本（例如GRU和LSTM）以解决梯度消失的问题，但云负载数据中的高维度问题仍然没有被好好考虑，这可能会导致负载预测的低准确性以及高计算复杂度。
+为了解决上述的挑战，我们首先提出了TSA以在高维度的负载数据中提高压缩效率。接着，为了更好的解决负载特征间的高偏差，我们集成TSA和GRU块到RNN框架中以负载预测过程中的捕捉长效依赖。</p>
+<h2 id="系统模型">4. 系统模型</h2>
+<p>云服务提供商承诺提供迅速的资源分配服务以满足用户的需求，这意味着服务资源需要能够根据现有的资源利用情况作出及时的调整，这样才能使得云数据中心达到更好的负载均衡。然而，由于用户负载的变化多端，很难立即找到一个理想的资源分配策略，这样会显著的降低用户体验。同时，低效的、无理由的资源分配同样会导致不必要的分配过剩（例如，能源消耗）亦或者是对SLAs的违反。为了应对高可变和高维度的用户负载，我们提出了一个针对云数据中心的负载预测模型以最小化预测值与真实之之间的误差同时保证了预测器的执行效率。我们提出的模型的关键组成部分如图2所示。
+[[Pasted image 20220311150942.png]] <em>Workload
+Processor</em>：历史的负载数据被预测器用作学习。经过对于历史负载数据的预处理以及压缩，负载数据被作为预测器的输入。通常，历史负载数据包括系统运行状态的各种各样的指标（例如CPU利用率、内存利用率、以及磁盘I/O时间）这些往往会加重压缩过程的冗余度和复杂度。根据Google生产集群以及Amazon
+AWS
+EC2提供的数据，平均CPU利用率非常低，大约为20%和7%。数据中心的大量投入却只换来了低CPU利用率一直以来困扰着云服务提供商。因此，工业界将CPU利用率看作是一个提高云数据中心资源分配的重要指标。和很多现代在云数据中心做资源分配的工作一样，我们也将CPU利用率作为负载主要的性能指标并且在负载数据预处理阶段抽取了这个指标。我们定义<span
+class="math inline">\(\vec{X}=\left(x_{1}, x_{2}, \ldots,
+x_{n}\right)\)</span>，其中<span class="math inline">\(n \in
+\mathcal{R}\)</span>，<span class="math inline">\(x_n\)</span>是<span
+class="math inline">\(n\)</span>时刻的CPU利用率。由于不同时间区间的负载的值有着比较大的差异，原始的负载数据在进行下一步之前需要做一个归一化，这可以帮助学习算法加速手链。更重要的是，我们使用了一种机器学习中广泛的归一化的方法（也叫做规范化）：
+<span class="math display">\[
+x&#39; = \frac{x - mean(\vec{x})}{\sigma}
+\]</span> 其中<span class="math inline">\(mean(\vec{x})\)</span>是<span
+class="math inline">\(\vec{x}\)</span>的平均值而<span
+class="math inline">\(\sigma = \sqrt{E(\vec{x}^2) -
+(E(\vec{x}))^2}\)</span> 即标准差 经过预处理之后，归一化的负载数据<span
+class="math inline">\(\vec{x}&#39;\)</span>被传递给负载压缩模块，高维度的冗余的负载数据会大大奖励预测的准确率以及造成高额的计算消耗。这时，一个顶部稀疏的自动编码器将被用作压缩数据，它将会有效的压缩出低维度但存在大量潜在的特征表示的负载数据。这样的负载数据会被用作一个基于门控RNN的负载预测器，TSA的详细描述将会在第5章给出。
+<em>Prediction Processor</em>：
+利用归一化并且经过压缩的历史负载数据，未来的负载情况将会被预测并且提供给云服务提供商，这些预测指标将会被用作决定合适的资源分配策略。在预测模块中，L-PAW这个基于门控RNN的学习算法，被用作提取用户负载间的长存依赖关系以在时序预测问题中提供更加准确的结果。在将L-PAW利用到负载预测之前，每个时间区间的CPU利用情况将被记录并且加入到历史负载数据中并用作RNN的输入。通过设置预测的时间长度，可以时间在不同时间维度的负载预测。L-PAW算法的细节将会在章节5给出。我们使用了均方误差（MSE）来约束负载预测的准确性：
+<span class="math display">\[
+MSE = \frac{1}{N}\sum_{i=1}^{N}(\hat(y)_i-y_i)^2
+\]</span> 其中<span
+class="math inline">\(N\)</span>表示预测的时间长度，<span
+class="math inline">\(\hat{y}_i\)</span>和<span
+class="math inline">\(y_i\)</span>分别表示预测的负载情况和真实的负载情况。</p>
+<h2 id="基于深度学习的云负载预测">5. 基于深度学习的云负载预测</h2>
+<p>这个章节将会描述我们提出的L-PAW，一个基于深度学习算法的云负载预测器。首先，一个顶部稀疏的自动编码器（TSA）被设计用于有效的抽取具有潜在特征表达的低维度负载数据。接着，TSA和GRU块被集成进RNN以从历史数据中捕获长存依赖关系以获得精确的负载预测。
+如图3所示，TSA的输入是一个负载样本的向量<span
+class="math inline">\(\vec{X} = (x_1,x_2,...,x_n)\)</span>其中<span
+class="math inline">\(n \in \mathcal{R}\)</span>而<span
+class="math inline">\(x_n\)</span>表示n时刻的CPU利用率。与SA相似的是，TSA同样要拟合一个函数<span
+class="math inline">\(y_n = f(Wx_n+b) \approx x_n\)</span>，让输出<span
+class="math inline">\(y_n\)</span>能够尽量的逼近输入<span
+class="math inline">\(x_n\)</span>。特别的是，SA用的是线性激活函数的组合和固定的权重，着往往由于对于隐藏单元的过度使用从而导致了学习的效率非常低下。我们提出的TSA可以被视作一个SA的升级版本，顶部的有着最高激活度的k个隐藏单元被玄宗来重构输入数据而不是像SA一样使用所有的隐藏单元。在前馈的过程中，每一个隐藏单元平均激活值<span
+class="math inline">\(\hat{\rho}\)</span>按照如下的方式计算： <span
+class="math display">\[
+\hat{\rho} = \frac{1}{N}\sum_{i=1}^{n}[a^{(h)}(x_i)]
+\]</span> 其中<span
+class="math inline">\(a^{(h)}\)</span>是隐藏层的激活函数</p>
+<p><img src="Pasted%20image%2020220311160615.png" /></p>
+<p>接着，所有的隐藏单元会按照他们的<span
+class="math inline">\(\hat{\rho}\)</span>值进行排序，前k个隐藏单元可以被找出来，用一个向量表示<span
+class="math inline">\(\tau =
+{top}_k(\hat{\rho})\)</span>。因此，非线性的计算仅仅只会在传递<span
+class="math inline">\({top}_k(\hat{\rho})\)</span>的时候发生，这相比于SA极大的减少了计算复杂度。更加重要的是，<span
+class="math inline">\(k\)</span>值影响着压缩前后负载数据的相似程度。。例如，当使用一个较小的<span
+class="math inline">\(k\)</span>时TSA不能够完全捕捉到原始数据的特征（隐藏层太少了），这会使得压缩数据严重变形，反之，使用一个较大的<span
+class="math inline">\(k\)</span>值，TSA将会携带大量的冗余信息（隐藏层过多），这又会加剧接下来预测工作的计算复杂度。我们提出的TSA算法的关键步骤由算法1描述。算法1的复杂度是<span
+class="math inline">\(O(n)\)</span>的，与隐藏层的大小<span
+class="math inline">\(n\)</span>线性相关。</p>
+<p><img src="Pasted%20image%2020220311160628.png" />
+因此，复杂数据的压缩问题转换成了一个通过最小化损失函数<span
+class="math inline">\(J_{TSA}(W, b)\)</span>计算权重<span
+class="math inline">\(W\)</span>以及偏差<span
+class="math inline">\(b\)</span>的问题。特别的，标准神经网络的损失函数被定义为：
+<span class="math display">\[
+J(W, b) =
+\frac{\lambda}{2n}\sum_{l=1}^{2}\sum_{i=1}^{s_l}\sum_{j=1}^{s_{l+1}}(W^{(l)}_{ji})^2+\frac{1}{n}\sum_{i=1}^{n}(\frac{1}{2}||x_i-y_i||^2)
+\]</span> 上式第一项是为了避免过拟合的正则项，第二项是原始负载数据<span
+class="math inline">\(x_i\)</span>和经过编码后的<span
+class="math inline">\(y_i\)</span>之间的均方误差。
+为了在求导计算中引入KL散度，隐藏层在反向传播的求导被修改成了： <span
+class="math display">\[
+\delta^{(h)}_i =
+[\sum_{j=1}^{N_o}\delta^{(h)}_jW^{(h)}_{ji}+\beta(-\frac{\rho}{\hat{\rho}_i}+\frac{1-\rho}{1-\hat{\rho}_i})]f&#39;(z^{(h)}_i)
+\]</span> 其中<span
+class="math inline">\(N_o\)</span>是输出神经元的格式，而<span
+class="math inline">\(f&#39;(z^{(h)}_i)\)</span>是激活函数<span
+class="math inline">\(f(z^{(h)}_i)=a^{(h)}_i\)</span>的导数
+接着，我们将被压缩过的负载数据集作为原始数据集的高层表示，并且将它们用作基于RNN的负载预测模型的输入<span
+class="math inline">\(\vec{X^c}=(X^c_1,x^c_2,...,x^c_t)\)</span>，假设模型的输出是<span
+class="math inline">\(\vec{Y}=(\hat{y}_1,\hat{y}_2,...,\hat{y}_t)\)</span>，那么模型将会通过比较预测的负载数据<span
+class="math inline">\(\hat{y}_t\)</span>和<span
+class="math inline">\(t+1\)</span>时刻真实的负载数据<span
+class="math inline">\(x^c_{t+1}\)</span>之间的误差。特别的，通过时间的反向传播（BPTT）被用作RNN的训练算法，在隶书的负载数据和预测的负载数据之间仅存在一个短的时间区间。RNN可以学习到有用的信息来做预测。然而，RNN要读入和更新所有先前的信息，随着时间增加在RNN中累计的梯度就会非常接近于0，导致RNN的网络参数不能被有效的更新，最后学习失败。这个问题就是梯度消失问题，同样也可以被解释为对于长存依赖学习能力的匮乏。因此，长时间以前的历史负载数据在传统的RNN结构中不能被有效的利用。</p>
+<p>为此，我们提出来L-PAW以更好的解决以上的文同。基于TSA抽取出来的负载的潜在特征表达，我们将经典RNN结构中的隐藏层替换成了GRU块。算法2描述了L-PAW的关键步骤。在调用TSA以获得压缩的负载数据之后，我们设置了一个衰减参数<span
+class="math inline">\(\lambda\)</span>以成段的控制学习率<span
+class="math inline">\(\gamma\)</span>
+，旨在不同的训练阶段达成更有效的学习。 <img
+src="Pasted%20image%2020220314210819.png" />
+为了解决传统RNN中出现的梯度消失的问题，一些门结构的RNN被发明，例如LSTM和GRU。相比于LSTM，GRU有更少的参数，可以达到更高的学习效率。于传统RNN不同的是，GRU利用门结构以有选择性的读入和更新以前的信息。因此，GRU只保留对于预测有用的信息而过滤掉不相关的信息。同时，GRU通过门结构以及直接传递储存的历史信息自动的在不同的网络层中建立短链接。因此，GRU可以通过设置不同的门结构，重新组织传统RNN的参数来解决梯度消失的问题。GRU的核心思想是使隐藏单元保存一些长期的记忆，这可以使得梯度经过很多步的处理。GRU是从LSTM简化而来的，它将LSTM的遗忘门和输入门合并成了一个更新门。因此，GRU有两种类型的门，一种是更新门<span
+class="math inline">\(z_t\)</span>另一种是重置门<span
+class="math inline">\(r_t\)</span>。如图4所示，我们描绘了L-PAW算法中GRU块的结构。类似于LSTM，两个门的更新是基于现在的输入<span
+class="math inline">\(x^c_t\)</span>以及以往的隐藏状态<span
+class="math inline">\(\hat{y}_{t-1}\)</span>。新的记忆数据<span
+class="math inline">\(\tilde{y_t}\)</span>被视作是现在时刻<span
+class="math inline">\(t\)</span>的新数据，遗忘门<span
+class="math inline">\(r_t\)</span>被用作控制以前的记忆数据是否需要被丢弃。除此之外，更新门<span
+class="math inline">\(Z_t\)</span>被用作控制先前的记忆内容<span
+class="math inline">\(\hat{y}_{t-1}\)</span>以及新的记忆内容<span
+class="math inline">\(\tilde{y_t}\)</span>是应该被添加进来还是应该被遗忘。因此，GRU块的输出<span
+class="math inline">\(\hat{y}_t\)</span>（即预测的负载数据）可以基于更新门<span
+class="math inline">\(Z_t\)</span>计算。算法儿的复杂度与模型的容量（即模型的参数）正相关，可以被表示为<span
+class="math inline">\(O(3(n^2+nm+n))\)</span>，其中<span
+class="math inline">\(m\)</span>是输入的尺寸，<span
+class="math inline">\(n\)</span>是隐藏层的尺寸，并且存在3个操作集合需要权重指标（其中两个是更新门和重置门，另外一个是新的记忆数据）特别的，GRU是通过小批次随机梯度下降（SGD）训练的，以获得更高的准确性。</p>
+<p><img src="Pasted%20image%2020220314211717.png" /></p>
+<p>TSA和GRU块的结合使得传统的RNN能够从历史负载数据中更有效的学习到长存记忆以来。无论历史记忆是否关键，更新门会为了在经过很多步之后保存潜在的负载特征而关闭。另外，重置门使得GRU块可以通过设置何时保存的记忆不在必要以合理的利用模型的容量。因此，提出的L-PAW是基于一个简化版的有有着更少门结构的LSTM得到的，同时可以通过利用高层的负载数据的特征表示相比于GRU达到更快的收敛速度。相对的，LSTM有着更多的门以及参数，它需要大量的训练样本以及更长的训练时间以训练一个优秀的模型。而GRU可能会因为经典SA对于隐藏层的过度使用而丢失训练效率。</p>
+<h2 id="实验">6. 实验</h2>
+<p>在本章节，我们首先给出了模拟环境的设置以及我们实验的数据集，接着，我们验证了提出的T-PWA算法的表现以及比较了基于RNN的方法以及其他在云数据中心中做负载预测的经典算法。</p>
+<h3 id="模拟环境设置及数据集">6.1 模拟环境设置及数据集</h3>
+<p>我们基于TensorFlow
+1.4.0部署了云负载预测模型。实验中我们使用了真实生产环境下的数据集。其中一个是谷歌集群使用数据，它包含了超过125000个在谷歌云数据中心运行的机器从2011年5月以来的数据。第二个是阿里巴巴的集群数据，它包含了4000个有着运行时资源使用率机器的数据。第三个是由Dinda收集的的基于DUX的集群数据。在我们的誓言中，我们将CPU使用率视作主要的性能指标。更重要的是，我们从谷歌数据集中随机选择了1000个超过29天的机器，每一个机器包括接近100000个数据。相似的，我们也从阿里巴巴数据集中随机选择了1000个超过8天的机器，每个机器包括接近7000条数据。接着，我们抽取了若干条与负载预测相关的潜在的指标，包括机器编号、启动时间、停止时间、CPU利用率、内存利用率以及磁盘I/O。如图5和图6所示，我们展示了谷歌以及阿里巴巴数据集中一个机器每一天以及每一分钟的负载波动。至于基于DUX的集群数据已经根据负载的特征进行了分类，我们从两个特定的机器中选择了两个数据集，一个包含15天以来1296000高度自相关的负载数据，另一个包含1123200条高度周期性的13天的数据。图7和图8展示了这两种基于DUX集群的机器的每一天和每一分钟的负载波动。我们可以从图5，6，7，8中发现，谷歌和阿里巴巴的负载存在着更加随机的特点，而基于DUX集群的负载则表现出高自相关和周期性。平均来说，在预处理之后，每一个host机器的负载样本大小约为8000。我们按照批次将数据喂入我们的预测模型中。更细节的是，我们随机将数据集划分为了三个部分，训练集（50%）、验证集（25%）以及测试集（25%）。训练集用作模型的训练（计算神经网络的权重），验证集用于模型的选择（选择超参数以及避免过拟合），而测试机用于验证选择的最优模型的表现。另外，训练的总轮数是100轮，初始的学习率是0.03，被去除的反向传播步数是32，一个批次的大小是128。</p>
+<p><img src="Pasted%20image%2020220314215742.png" /></p>
+<p><img src="Pasted%20image%2020220314215834.png" /></p>
+<p><img src="Pasted%20image%2020220314215853.png" /></p>
+<p><img src="Pasted%20image%2020220314215822.png" /></p>
+<h3 id="实验结果">6.2 实验结果</h3>
+<p>我们首先验证了提出的用于压缩负载数据的TSA算法的损失函数的值来表现压缩效果，在谷歌数据集上用不同数量的top隐藏单元，k值从32变化到512，图9a描述了损失函数的值会在大约50个训练轮次后显著下降并且最终以不同数量的top隐藏单元数量收敛。更特别的是，当top隐藏单元的数量小的时候（例如<span
+class="math inline">\(k\le64)\)</span>损失函数的值相当高。因为TSA的神经网络必须大面积的重构以小的top隐藏单元数适应压缩需求。当隐藏单元数较大时（例如<span
+class="math inline">\(k\ge128)\)</span>，不同隐藏单元数目的损失函数的值没有很显著的差异，这是因为神经网络结构已经具备了从原始数据中学习潜在特征表示的能力。因此，我们设置隐藏神经单元的数目为128（即<span
+class="math inline">\(k=128\)</span>）并且在接下来的实验中一直保持这个设定。同时，我们也画出了负载数据在使用TSA以不同数目的隐藏单元压缩的前后对比。如图9b，9c，9e以及9f所示，负载压缩的TSA算法在恰当设定top隐藏单元数目时时非常有效的，它能够提供有效的特征表示，极大的减少了我们提出的负载预测算法的计算复杂度。
+<img src="Pasted%20image%2020220314231238.png" /></p>
+<p>基于谷歌数据集和经过TSA压缩预处理过后的负载数据集，我们验证了提出的L-PAW算法以及其他最近提出的用于负载预测的基于RNN的方法，包括RNN、LSTM、GRU以及ESN。我们同时比较了这些方法的预测准确率和学习效率。图10展现了不同基于RNN方法在不同预测长度层级上的均方误差。总的来说，这些方法的均方误差均会随着预测长度提升而变大。更重要的是，在第二层级的预测中，L-PAW和其他的方法在预测准确率方面没有显著的差异。当预测长度提升的时候（从分钟级预测到天级的预测），L-PAW不仅在预测准确率上领先于其他基于RNN的算法，同时也表现出了更大的差距在性能提升上。这是因为L-PAW可以解决梯度消失的问题并且捕获长存记忆依赖关系。结果表明L-PAW对于高维度、高可变性的云负载数据的预测相比于其他基于RNN的方法是更有效的。</p>
+<p><img src="Pasted%20image%2020220315132839.png" /></p>
+<p>接着，我们比较了提出的L-PAW算法和其他基于RNN的方法在不同预测长度下的学习效率。如图11所示，以上方法在不同预测长度下的平均预测时间被记录下来。RNN因为其简单的神经网络结构在不同层级的预测长度下表现出最短的训练时间。然而，RNN的训练准确率要比其他基于RNN的方法更差，这个结果如图10所示。而基于门控的RNN方法，例如GRU则因为其更少的门配置相比于LSTM有着更短的训练时间。然而，GRU的平均训练时间比ESN要高得多，因为ESN通过自编码器完成负载压缩减少了计算复杂度，相对的，L-PAW通过集成TSA和GRU快到RNN中相比于ESN达到了更少的训练时间。因此，L-PAW可以在随着预测长度上升时预测准确率和学习效率之间相比于其他基于RNN的方法达到更好的均衡。</p>
+<p><img src="Pasted%20image%2020220315133438.png" /></p>
+<p>接着，我们验证了L-PAW在不同类型的负载数据在不同级别的预测长度下的表现，包括高度随机、高度自相关一集高度周期性的负载。如表1所示，随着预测长度的增加，L-PAW在高自相关和高周期性的数据在CPU使用率层面可以达到并保持高的预测准确性。在面对高随机的负载数据是，L-PAW仍然可以保持好的预测结果尽管负载的变化为负载预测带来了极大的困难。例如，图12描述了L-PAW在不同类型的负载数据在秒级的预测，展示了L-PAW在CPU、内存以及磁盘I/O层面可以达到高准确率的负载预测。如图13和图14所示，L-PAW在应对谷歌（内存使用）和阿里巴巴（磁盘I/O利用）数据中心高随机性的数据仍然可以表现出高预测准确性。甚至对于天级别的预测，L-PAW可以准确的预测出未来负载变化的趋势。因此，以上的结果表明了L-PAW在不同层级的预测长度下面对不同类型的负载数据具有非常强大的预测能力。</p>
+<p><img src="Pasted%20image%2020220315134245.png" /></p>
+<p>最终，我们将L-PAW和其他负载预测的经典方法进行了比较，包括自动回归、线性回归以及人工神经网络。在表现预测准确性的MSE方面，图15描绘了不同级别的预测长度下的不同负载预测方法的在谷歌数据集MSE的累计分布函数（CDF），如图15a所示，对于秒级别的预测，L-PAW能够达到的秒级别的值在CDF趋近于1的时候相比于其他所有方法都要更低。如图15b及图15d所示，随着预测长度的增加，L-PAW相比于其他经典方法达到了更加明显的性能提升。这是因为这些经典的方法不能够有效的实现长效的预测或者针对高度随机负载数据的预测。相反的，L-PAW可以更好的解决这些问题，因为它可以通过TSA从原始数据中抽取特征表达并且通过引入GRU块捕捉长效依赖。</p>
+<p><img src="Pasted%20image%2020220315134853.png" /></p>
+<h2 id="结论">7. 结论</h2>
+<p>适应性的和有效的负载预测对于有效的资源分配来说是必要的。然而，负载预测并没有很好的解决高变化和高维度的负载数据带来的挑战。在这篇文章中，我们首先设计了一个top稀疏自编码器（TSA）来有效的从原始的高维数据中抽取必要特征表达。接着，集成了TSA和GRU块的L-PAW算法被提出以达到适应性强、准确性高的负载预测。我们进行的实验使用了谷歌公司和阿里巴巴公司云数据中心以及基于DUX的集群的真实生产环境下的负载数据集，表明在高自相关的、高周期性的以及高度随机的数据中，L-PAW可以达到MSE约束的高预测准确性。并且，随着预测长度的增加，预测误差仅仅只有很小的增大，这同样也表明了L-PAW的强大能力。同时，L-PAW也比经典的RNN、LSTM、GRU以及ESN在负载预测上对于MSE的提升表现的要好，同时还达到了非常高的学习效率。另外，随着预测长度的提升，L-PAW相对于其他方法达到了更大的预测准确性的提升，这意味着L-PAW有着在云负载预测问题中解决长效依赖问题的能力。机遇准确的、高效的云负载预测，我们未来的工作是要为资源分配去探索一个适应性强的、机遇深度强化学习的策略，以应对负载的、高动态的云计算环境。</p>
+
+        </div>
+
+        
+            <section class="post-copyright">
+                
+                
+                
+                    <p class="copyright-item">
+                        <span>License:</span>
+                        <span>Copyright (c) 2023 <a target="_blank" rel="noopener" href="http://creativecommons.org/licenses/by-nc/4.0/">CC-BY-NC-4.0</a> LICENSE</span>
+                    </p>
+                
+                
+
+            </section>
+        
+        <section class="post-tags">
+            <div>
+                <span>Tag(s):</span>
+                <span class="tag">
+                    
+                    
+                        <a href="/tags/workload-prediction/"># workload prediction</a>
+                    
+                        <a href="/tags/deep-learning/"># deep learning</a>
+                    
+                        
+                </span>
+            </div>
+            <div>
+                <a href="javascript:window.history.back();">back</a>
+                <span>· </span>
+                <a href="/">home</a>
+            </div>
+        </section>
+        <section class="post-nav">
+            
+                <a class="prev" rel="prev" href="/2022/11/02/20/21/">【文献精读】Sinan: ML-Based and QoS-Aware Resource Management for Cloud Microservices</a>
+            
+            
+            <a class="next" rel="next" href="/2022/08/15/16/07/">gdb调试指南</a>
+            
+        </section>
+
+
+    </article>
+</div>
+
+            </div>
+            <footer id="footer" class="footer">
+    <div class="copyright">
+        <span>© Gunther Xing | Powered by <a href="https://hexo.io" target="_blank">Hexo</a> & <a href="https://github.com/Siricee/hexo-theme-Chic" target="_blank">Chic</a></span>
+    </div>
+</footer>
+
+    </div>
+</body>
+
+</html>

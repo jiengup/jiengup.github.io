@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="">
+
+<head>
+    <meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <meta name="author" content="Gunther Xing">
+
+
+    <meta name="subtitle" content="A blog site belong to Gunther Xing">
+
+
+
+
+<title>【文献精读】Characterizing Microservice Dependency and Performance, 阿里巴巴微服务trace分析 | Gunther&#39;s Blog</title>
+
+
+
+    <link rel="icon" href="/J_Drive.ico">
+
+
+
+
+    <!-- stylesheets list from _config.yml -->
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+
+
+
+    <!-- scripts list from _config.yml -->
+    
+    <script src="/js/script.js"></script>
+    
+    <script src="/js/tocbot.min.js"></script>
+    
+
+
+
+    
+    
+        <!-- MathJax配置，可通过单美元符号书写行内公式等 -->
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+    "HTML-CSS": {
+        preferredFont: "TeX",
+        availableFonts: ["STIX","TeX"],
+        linebreaks: { automatic:true },
+        EqnChunk: (MathJax.Hub.Browser.isMobile ? 10 : 50)
+    },
+    tex2jax: {
+        inlineMath: [ ["$", "$"], ["\\(","\\)"] ],
+        processEscapes: true,
+        ignoreClass: "tex2jax_ignore|dno",
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    },
+    TeX: {
+        equationNumbers: { autoNumber: "AMS" },
+        noUndefined: { attributes: { mathcolor: "red", mathbackground: "#FFEEEE", mathsize: "90%" } },
+        Macros: { href: "{}" }
+    },
+    messageStyle: "none"
+    });
+</script>
+<!-- 给MathJax元素添加has-jax class -->
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+<!-- 通过连接CDN加载MathJax的js代码 -->
+<script type="text/javascript" async
+        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+
+
+    
+
+
+<meta name="generator" content="Hexo 6.2.0"></head>
+
+<body>
+    <script>
+        // this function is used to check current theme before page loaded.
+        (() => {
+            const currentTheme = window.localStorage && window.localStorage.getItem('theme') || '';
+            const isDark = currentTheme === 'dark';
+            const pagebody = document.getElementsByTagName('body')[0]
+            if (isDark) {
+                pagebody.classList.add('dark-theme');
+                // mobile
+                document.getElementById("mobile-toggle-theme").innerText = "· Dark"
+            } else {
+                pagebody.classList.remove('dark-theme');
+                // mobile
+                document.getElementById("mobile-toggle-theme").innerText = "· Light"
+            }
+        })();
+    </script>
+
+    <div class="wrapper">
+        <header>
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-header header-logo"><a href="/">Gunther&#39;s Blog</a></div>
+            <div class="menu navbar-right">
+                
+                    <a class="menu-item" href="/archives">Posts</a>
+                
+                    <a class="menu-item" href="/category">Categories</a>
+                
+                    <a class="menu-item" href="/tag">Tags</a>
+                
+                    <a class="menu-item" href="/about">About</a>
+                
+                <input id="switch_default" type="checkbox" class="switch_default">
+                <label for="switch_default" class="toggleBtn"></label>
+            </div>
+        </div>
+    </nav>
+
+    
+    <nav class="navbar-mobile" id="nav-mobile">
+        <div class="container">
+            <div class="navbar-header">
+                <div>
+                    <a href="/">Gunther&#39;s Blog</a><a id="mobile-toggle-theme">·&nbsp;Light</a>
+                </div>
+                <div class="menu-toggle" onclick="mobileBtn()">&#9776; Menu</div>
+            </div>
+            <div class="menu" id="mobile-menu">
+                
+                    <a class="menu-item" href="/archives">Posts</a>
+                
+                    <a class="menu-item" href="/category">Categories</a>
+                
+                    <a class="menu-item" href="/tag">Tags</a>
+                
+                    <a class="menu-item" href="/about">About</a>
+                
+            </div>
+        </div>
+    </nav>
+
+</header>
+<script>
+    var mobileBtn = function f() {
+        var toggleMenu = document.getElementsByClassName("menu-toggle")[0];
+        var mobileMenu = document.getElementById("mobile-menu");
+        if(toggleMenu.classList.contains("active")){
+           toggleMenu.classList.remove("active")
+            mobileMenu.classList.remove("active")
+        }else{
+            toggleMenu.classList.add("active")
+            mobileMenu.classList.add("active")
+        }
+    }
+</script>
+            <div class="main">
+                <div class="container">
+    
+    
+        <div class="post-toc">
+    <div class="tocbot-list">
+    </div>
+    <div class="tocbot-list-menu">
+        <a class="tocbot-toc-expand" onclick="expand_toc()">Expand all</a>
+        <a onclick="go_top()">Back to top</a>
+        <a onclick="go_bottom()">Go to bottom</a>
+    </div>
+</div>
+
+<script>
+    var tocbot_timer;
+    var DEPTH_MAX = 6; // 为 6 时展开所有
+    var tocbot_default_config = {
+        tocSelector: '.tocbot-list',
+        contentSelector: '.post-content',
+        headingSelector: 'h1, h2, h3, h4, h5',
+        orderedList: false,
+        scrollSmooth: true,
+        onClick: extend_click,
+    };
+
+    function extend_click() {
+        clearTimeout(tocbot_timer);
+        tocbot_timer = setTimeout(function() {
+            tocbot.refresh(obj_merge(tocbot_default_config, {
+                hasInnerContainers: true
+            }));
+        }, 420); // 这个值是由 tocbot 源码里定义的 scrollSmoothDuration 得来的
+    }
+
+    document.ready(function() {
+        tocbot.init(obj_merge(tocbot_default_config, {
+            collapseDepth: 1
+        }));
+    });
+
+    function expand_toc() {
+        var b = document.querySelector('.tocbot-toc-expand');
+        var expanded = b.getAttribute('data-expanded');
+        expanded ? b.removeAttribute('data-expanded') : b.setAttribute('data-expanded', true);
+        tocbot.refresh(obj_merge(tocbot_default_config, {
+            collapseDepth: expanded ? 1 : DEPTH_MAX
+        }));
+        b.innerText = expanded ? 'Expand all' : 'Collapse all';
+    }
+
+    function go_top() {
+        window.scrollTo(0, 0);
+    }
+
+    function go_bottom() {
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+    function obj_merge(target, source) {
+        for (var item in source) {
+            if (source.hasOwnProperty(item)) {
+                target[item] = source[item];
+            }
+        }
+        return target;
+    }
+</script>
+    
+
+    
+    <article class="post-wrap">
+        <header class="post-header">
+            <h1 class="post-title">【文献精读】Characterizing Microservice Dependency and Performance, 阿里巴巴微服务trace分析</h1>
+            
+                <div class="post-meta">
+                    
+
+                    
+                        <span class="post-time">
+                        Date: <a href="#">April 5, 2023&nbsp;&nbsp;15:45:22</a>
+                        </span>
+                    
+                    
+                        <span class="post-category">
+                    Category:
+                            
+                                <a href="/categories/Research/">Research</a>
+                            
+                        </span>
+                    
+                </div>
+            
+        </header>
+
+        <div class="post-content">
+            <h2 id="metadata">Metadata</h2>
+<ul>
+<li><strong>Authors:</strong> Shutian Luo, Huanle Xu, Chengzhi Lu,
+Kejiang Ye, Guoyao Xu, Liping Zhang, Yu Ding, Jian He, Chengzhong
+Xu</li>
+<li><strong>Series:</strong> SoCC '21</li>
+<li><strong>Cite Key:</strong> <span class="citation"
+data-cites="luoCharacterizingMicroserviceDependency2021">@luoCharacterizingMicroserviceDependency2021</span></li>
+<li><strong>Link:</strong> <a
+target="_blank" rel="noopener" href="https://dl.acm.org/doi/10.1145/3472883.3487003">Characterizing_Microservice_Dependency_and_Performance_Proceedings_of_the_ACM_Symposium_on_Cloud_Computing_2021.pdf</a></li>
+<li><strong>Bibliography:</strong> Luo, S., Xu, H., Lu, C., Ye, K., Xu,
+G., Zhang, L., Ding, Y., He, J., &amp; Xu, C. (2021). Characterizing
+Microservice Dependency and Performance: Alibaba Trace Analysis.
+<em>Proceedings of the ACM Symposium on Cloud Computing</em>, 412–426.
+<a
+target="_blank" rel="noopener" href="https://doi.org/10.1145/3472883.3487003">https://doi.org/10.1145/3472883.3487003</a></li>
+</ul>
+<h2 id="abstract">Abstract</h2>
+<blockquote>
+<p>Loosely-coupled and light-weight microservices running in containers
+are replacing monolithic applications gradually. Understanding the
+characteristics of microservices is critical to make good use of
+microservice architectures. However, there is no comprehensive study
+about microservice and its related systems in production environments so
+far. In this paper, we present a solid analysis of large-scale
+deployments of microservices at Alibaba clusters. Our study focuses on
+the characterization of microservice dependency as well as its runtime
+performance. We conduct an in-depth anatomy of microservice call graphs
+to quantify the difference between them and traditional DAGs of
+data-parallel jobs. In particular, we observe that microservice call
+graphs are heavy-tail distributed and their topology is similar to a
+tree and moreover, many microservices are hot-spots. We reveal three
+types of meaningful call dependency that can be utilized to optimize
+microservice designs. Our investigation on microservice runtime
+performance indicates most microservices are much more sensitive to CPU
+interference than memory interference. To synthesize more representative
+microservice traces, we build a mathematical model to simulate call
+graphs. Experimental results demonstrate our model can well preserve
+those graph properties observed from Alibaba traces.## Annotations</p>
+</blockquote>
+<p>%% begin annotations %%</p>
+<h2 id="main-content">Main Content</h2>
+<h3 id="微服务架构">2. 微服务架构</h3>
+<h4 id="调用图">2.1 调用图</h4>
+<p><img
+src="https://cdn.jsdelivr.net/gh/jiengup/ImageBed@main/picgo202304041941287.png" /></p>
+<p>微服务可以被分成两类： -
+Stateful：例如Memcached和databases，通常提供读写数据的接口 -
+Stateless：提供不同目的的各种接口 微服务之间会有三种类型的通信方式： -
+远程调用（RPCs）：无向边，发送RPC请求的服务通常需要等待回应（同步方式）
+-
+消息队列（MQ）：有向边，发送方会将消息发送给一个第三方做持久化，接收方则会从第三方获取消息，并且不会返回Response（异步方式）
+-
+进程间通信（IP）：经常发生在同一个节点的stateless和stateful的服务之间</p>
+<p><em>通过MQ通常可以将微服务图划分为若干个部分，每个部分又可以划分为若干个<strong>两层调用（two-tier
+invocations）</strong>，调用方称为（Upstream Microservice,
+UM），被调用方（Downstream Microservice，DM）</em></p>
+<h4 id="图学习算法图聚类">2.2 图学习算法（图聚类）</h4>
+<p>[[InfoGraph]]是一种非监督学习的方法，将节点信息（微服务类型）以及边特征（通信框架）作为深度神经网络的输入训练，以最大化训练集中的互信息，以此可以为每一个图生成一个embedded向量。再利用生成的向量利用K-means算法完成聚类，使用Silhouette
+score度量k值的优劣。 <img
+src="https://cdn.jsdelivr.net/gh/jiengup/ImageBed@main/picgo202304051435418.png" /></p>
+<h3 id="调用图剖析">3. 调用图剖析</h3>
+<h4 id="微服务调用图的大小遵循重尾分布如burr-distribution">3.1
+微服务调用图的大小遵循重尾分布（如Burr Distribution）</h4>
+<figure>
+<img
+src="https://cdn.jsdelivr.net/gh/jiengup/ImageBed@main/picgo202304042029026.png"
+alt="image.png" />
+<figcaption aria-hidden="true">image.png</figcaption>
+</figure>
+<ul>
+<li>大多数调用图仅仅包含少量的微服务，但同时，也有不可忽视的一部分调用图很大很深</li>
+<li>有超过10%的调用图包含超过40种不同的微服务，在这些large
+size的调用图中，有50%的微服务是Memcacheds</li>
+<li>常见的调用深度是3，因为往往调用过程中会直接去Memcacheds中取数据，所以通常的调用图都很短
+<strong>（比传统的batch applications要短）</strong></li>
+<li>但同时，也有4%的调用图的调用深度会超过10，但是当微服务数量再上升的时候，微服务的深度却不会再加深了（c图）</li>
+</ul>
+<h4
+id="微服务调用图的结构更类似一个树并且其中很多都有一个较长的调用链">3.1
+微服务调用图的结构更类似一个树，并且其中很多都有一个较长的调用链</h4>
+<p><img
+src="https://cdn.jsdelivr.net/gh/jiengup/ImageBed@main/picgo202304042034612.png"
+alt="image.png" /> - 大多数微服务仅仅只有一个出度（只有一个UM） -
+有99%的微服务的出度不超过3，入度符合一个重尾分布 -
+大量的层（tire）只有一个服务，因此，很多比较深的调用图可以被表示为一个长链，<strong>对于这些图来说，找到微服务中的瓶颈是相对来说比较容易的</strong>
+- 有很多的stateless的服务是热点，聚合调用（agregate
+calls）统计显示有超过5%的服务出现在了90%的调用图中并且处理了95%的任务</p>
+<h4 id="微服务调用图是高度动态的">3.2 微服务调用图是高度动态的</h4>
+<p>每当一个用户请求到达Entering
+Microservice，接下来的调用路径会变得非常复杂，因为这还要取决于用户的状态（例如在为用户排序商品的时候，用户是否有优惠卷会影响排序的调用路径），这更加强调了微服务中需要基于图的预测任务。</p>
+<h4 id="剖析">3.3 剖析</h4>
+<p>Stateless 微服务的调用特征可以分为3种类型（Fig 8-a）： -
+blackhole：调用图终止于此，不会再产生新的分叉 -
+relays：一定会调用其他服务用于响应用户请求 -
+normal：以一定概率调用DMs的服务
+微服务中每一层这三种类型节点的分布都不一样，每一层normal服务的调用概率分布也不一样</p>
+<figure>
+<img
+src="https://cdn.jsdelivr.net/gh/jiengup/ImageBed@main/picgo202304042331490.png"
+alt="image.png" />
+<figcaption aria-hidden="true">image.png</figcaption>
+</figure>
+<p>随着调用图越来越深，Stateless访问Memcacheds的IP会线性的下降，因为调用图深的请求往往是发生了
+Memcacheds 的cache
+miss，因此会去Database里面获取数据，IP(S2D)呈上升趋势，而S2D的上升和S2M下降的差距会由MQ来填补上。</p>
+<h3 id="stateless微服务间的依赖分析">4. Stateless微服务间的依赖分析</h3>
+<h4 id="循环依赖">4. 1 循环依赖</h4>
+<p><img
+src="https://cdn.jsdelivr.net/gh/jiengup/ImageBed@main/picgo202304051321296.png"
+alt="image.png" /> - 微服务的所有依赖中，循环依赖占到了超过7.8% -
+循环依赖可以分为两种类型： - strong
+dependency：到达UM的调用和DM回复调用接口是相同的（<span
+class="math inline">\(I_1=I_3\)</span> in Fig 9），并且存在strong
+dependency
+循环调用的两个微服务间发生循环调用的概率高达83%。这种情况下，如果设计不当很可能会造成微服务间的死锁
+- weak depency：<span class="math inline">\(I_1 \ne I_3\)</span> in Fig
+9 - 很少存在多个微服务参与的循环调用（long cyclic
+calls），因此通常只用考虑两层的cyclic
+denpendency及其优化（可以考虑将存在cyclic
+dependency的两个微服务合并）</p>
+<h4 id="耦合依赖具有很高调用概率和很多调用次数的依赖">4.2
+耦合依赖——具有很高调用概率和很多调用次数的依赖</h4>
+<p>为一个两层调用<span
+class="math inline">\(Y-&gt;X\)</span>定义两个metric： <span
+class="math display">\[
+\begin{aligned}
+Call Probability(Y2X) = Count(X) / Sum \\
+Call Time(Y2X) = Count(X) / N
+\end{aligned}
+\]</span> 其中<span class="math inline">\(Count(X)\)</span>表示UM
+Y调用DM X的次数（注意在一次请求中一个DM可能会被Y调用多次），<span
+class="math inline">\(Sum\)</span>表示Y在所有调用图中发起的两层调用的个数和，<span
+class="math inline">\(N\)</span>表示<span
+class="math inline">\(Sum\)</span> 中DM X被调用的那些两层调用的个数。
+<img
+src="https://cdn.jsdelivr.net/gh/jiengup/ImageBed@main/picgo202304051404843.png"
+alt="image.png" /> 从Fig 10中可以看出来，有超过10%的微服务对的Call
+Time和Call
+Probability的乘积大于5，这说明有相当一部分微服务对有着很强的耦合依赖。
+同时还发现，有强耦合依赖的微服务对中有17%不会与其他微服务分享DM（入度为1），这意味着<strong>可以将这对服务本地化，以减少远程调用产生的开销</strong></p>
+<h3 id="微服务运行时性能">5 微服务运行时性能</h3>
+<h4 id="微服务调用率">5.1 微服务调用率</h4>
+<ul>
+<li>微服务调用率（Microservice call rate,
+MCR，每分钟微服务收到的调用数）和CPU利用率以及Young
+GC高度相关，但是和内存利用率不高度相关，这说明<strong>CPU利用率和Young
+GCs能够更好的反应运行微服务容器的资源压力</strong></li>
+<li>相对来说，内存使用情况在大多数容器中都是非常稳定的，与先前的研究结果相符
+#### 5.2 微服务时延性能（RT）</li>
+<li>一个在线服务的端到端时延（RT, entering
+调用的返回时间）在具有类似拓扑结构的调用图中很相似，但是具有不同拓扑结构的调用图之间有很大差异，<strong>这也说明了图学习算法可以用来预测延时</strong>
+<img
+src="https://cdn.jsdelivr.net/gh/jiengup/ImageBed@main/picgo202304051446758.png"
+alt="image.png" /></li>
+<li>时延性能可能会随着CPU利用率的增加而严重退化 <img
+src="https://cdn.jsdelivr.net/gh/jiengup/ImageBed@main/picgo202304051446662.png"
+alt="image.png" /></li>
+<li>按照建模的观点来看，RT应该是MCR和分配资源的一个函数，所以当分配资源和调用图拓扑一定时，RT应该只与MCR有关，但是Alibaba
+Trace中的RT却不怎么随MCR的增加而变化，这是因为Alibaba
+Cluster中的大多数调用都会被立即处理而不会产生排队时延，并且大多数容器中CPU的利用率都小于10%，这也进一步说明了在微服务资源利用率的优化方面还有很大的空间。</li>
+</ul>
+<h3 id="微服务图的概率模型生成">6. 微服务图的概率模型生成</h3>
+<p>文章还提出了一个概率模型去生成微服务图以及调用trace，可以更好的模拟生产级别的微服务架构和用户请求。</p>
+
+        </div>
+
+        
+            <section class="post-copyright">
+                
+                
+                
+                    <p class="copyright-item">
+                        <span>License:</span>
+                        <span>Copyright (c) 2023 <a target="_blank" rel="noopener" href="http://creativecommons.org/licenses/by-nc/4.0/">CC-BY-NC-4.0</a> LICENSE</span>
+                    </p>
+                
+                
+
+            </section>
+        
+        <section class="post-tags">
+            <div>
+                <span>Tag(s):</span>
+                <span class="tag">
+                    
+                    
+                        <a href="/tags/Microservice/"># Microservice</a>
+                    
+                        <a href="/tags/Characterization/"># Characterization</a>
+                    
+                        <a href="/tags/Banchmark/"># Banchmark</a>
+                    
+                        
+                </span>
+            </div>
+            <div>
+                <a href="javascript:window.history.back();">back</a>
+                <span>· </span>
+                <a href="/">home</a>
+            </div>
+        </section>
+        <section class="post-nav">
+            
+                <a class="prev" rel="prev" href="/2023/04/14/19/10/">【文献精读】The Power of Prediction: Microservice Auto Scaling via Workload Learning 微服务下的负载预测及资源分配</a>
+            
+            
+            <a class="next" rel="next" href="/2023/02/25/15/38/">深入浅出Disk IO</a>
+            
+        </section>
+
+
+    </article>
+</div>
+
+            </div>
+            <footer id="footer" class="footer">
+    <div class="copyright">
+        <span>© Gunther Xing | Powered by <a href="https://hexo.io" target="_blank">Hexo</a> & <a href="https://github.com/Siricee/hexo-theme-Chic" target="_blank">Chic</a></span>
+    </div>
+</footer>
+
+    </div>
+</body>
+
+</html>

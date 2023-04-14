@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="">
+
+<head>
+    <meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <meta name="author" content="Gunther Xing">
+
+
+    <meta name="subtitle" content="A blog site belong to Gunther Xing">
+
+
+
+
+<title>用通俗易懂的语言介绍分布式系统中的CAP理论 | Gunther&#39;s Blog</title>
+
+
+
+    <link rel="icon" href="/J_Drive.ico">
+
+
+
+
+    <!-- stylesheets list from _config.yml -->
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+
+
+
+    <!-- scripts list from _config.yml -->
+    
+    <script src="/js/script.js"></script>
+    
+    <script src="/js/tocbot.min.js"></script>
+    
+
+
+
+    
+    
+        <!-- MathJax配置，可通过单美元符号书写行内公式等 -->
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+    "HTML-CSS": {
+        preferredFont: "TeX",
+        availableFonts: ["STIX","TeX"],
+        linebreaks: { automatic:true },
+        EqnChunk: (MathJax.Hub.Browser.isMobile ? 10 : 50)
+    },
+    tex2jax: {
+        inlineMath: [ ["$", "$"], ["\\(","\\)"] ],
+        processEscapes: true,
+        ignoreClass: "tex2jax_ignore|dno",
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    },
+    TeX: {
+        equationNumbers: { autoNumber: "AMS" },
+        noUndefined: { attributes: { mathcolor: "red", mathbackground: "#FFEEEE", mathsize: "90%" } },
+        Macros: { href: "{}" }
+    },
+    messageStyle: "none"
+    });
+</script>
+<!-- 给MathJax元素添加has-jax class -->
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+<!-- 通过连接CDN加载MathJax的js代码 -->
+<script type="text/javascript" async
+        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+
+
+    
+
+
+<meta name="generator" content="Hexo 6.2.0"></head>
+
+<body>
+    <script>
+        // this function is used to check current theme before page loaded.
+        (() => {
+            const currentTheme = window.localStorage && window.localStorage.getItem('theme') || '';
+            const isDark = currentTheme === 'dark';
+            const pagebody = document.getElementsByTagName('body')[0]
+            if (isDark) {
+                pagebody.classList.add('dark-theme');
+                // mobile
+                document.getElementById("mobile-toggle-theme").innerText = "· Dark"
+            } else {
+                pagebody.classList.remove('dark-theme');
+                // mobile
+                document.getElementById("mobile-toggle-theme").innerText = "· Light"
+            }
+        })();
+    </script>
+
+    <div class="wrapper">
+        <header>
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-header header-logo"><a href="/">Gunther&#39;s Blog</a></div>
+            <div class="menu navbar-right">
+                
+                    <a class="menu-item" href="/archives">Posts</a>
+                
+                    <a class="menu-item" href="/category">Categories</a>
+                
+                    <a class="menu-item" href="/tag">Tags</a>
+                
+                    <a class="menu-item" href="/about">About</a>
+                
+                <input id="switch_default" type="checkbox" class="switch_default">
+                <label for="switch_default" class="toggleBtn"></label>
+            </div>
+        </div>
+    </nav>
+
+    
+    <nav class="navbar-mobile" id="nav-mobile">
+        <div class="container">
+            <div class="navbar-header">
+                <div>
+                    <a href="/">Gunther&#39;s Blog</a><a id="mobile-toggle-theme">·&nbsp;Light</a>
+                </div>
+                <div class="menu-toggle" onclick="mobileBtn()">&#9776; Menu</div>
+            </div>
+            <div class="menu" id="mobile-menu">
+                
+                    <a class="menu-item" href="/archives">Posts</a>
+                
+                    <a class="menu-item" href="/category">Categories</a>
+                
+                    <a class="menu-item" href="/tag">Tags</a>
+                
+                    <a class="menu-item" href="/about">About</a>
+                
+            </div>
+        </div>
+    </nav>
+
+</header>
+<script>
+    var mobileBtn = function f() {
+        var toggleMenu = document.getElementsByClassName("menu-toggle")[0];
+        var mobileMenu = document.getElementById("mobile-menu");
+        if(toggleMenu.classList.contains("active")){
+           toggleMenu.classList.remove("active")
+            mobileMenu.classList.remove("active")
+        }else{
+            toggleMenu.classList.add("active")
+            mobileMenu.classList.add("active")
+        }
+    }
+</script>
+            <div class="main">
+                <div class="container">
+    
+    
+        <div class="post-toc">
+    <div class="tocbot-list">
+    </div>
+    <div class="tocbot-list-menu">
+        <a class="tocbot-toc-expand" onclick="expand_toc()">Expand all</a>
+        <a onclick="go_top()">Back to top</a>
+        <a onclick="go_bottom()">Go to bottom</a>
+    </div>
+</div>
+
+<script>
+    var tocbot_timer;
+    var DEPTH_MAX = 6; // 为 6 时展开所有
+    var tocbot_default_config = {
+        tocSelector: '.tocbot-list',
+        contentSelector: '.post-content',
+        headingSelector: 'h1, h2, h3, h4, h5',
+        orderedList: false,
+        scrollSmooth: true,
+        onClick: extend_click,
+    };
+
+    function extend_click() {
+        clearTimeout(tocbot_timer);
+        tocbot_timer = setTimeout(function() {
+            tocbot.refresh(obj_merge(tocbot_default_config, {
+                hasInnerContainers: true
+            }));
+        }, 420); // 这个值是由 tocbot 源码里定义的 scrollSmoothDuration 得来的
+    }
+
+    document.ready(function() {
+        tocbot.init(obj_merge(tocbot_default_config, {
+            collapseDepth: 1
+        }));
+    });
+
+    function expand_toc() {
+        var b = document.querySelector('.tocbot-toc-expand');
+        var expanded = b.getAttribute('data-expanded');
+        expanded ? b.removeAttribute('data-expanded') : b.setAttribute('data-expanded', true);
+        tocbot.refresh(obj_merge(tocbot_default_config, {
+            collapseDepth: expanded ? 1 : DEPTH_MAX
+        }));
+        b.innerText = expanded ? 'Expand all' : 'Collapse all';
+    }
+
+    function go_top() {
+        window.scrollTo(0, 0);
+    }
+
+    function go_bottom() {
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+    function obj_merge(target, source) {
+        for (var item in source) {
+            if (source.hasOwnProperty(item)) {
+                target[item] = source[item];
+            }
+        }
+        return target;
+    }
+</script>
+    
+
+    
+    <article class="post-wrap">
+        <header class="post-header">
+            <h1 class="post-title">用通俗易懂的语言介绍分布式系统中的CAP理论</h1>
+            
+                <div class="post-meta">
+                    
+
+                    
+                        <span class="post-time">
+                        Date: <a href="#">February 17, 2023&nbsp;&nbsp;11:51:35</a>
+                        </span>
+                    
+                    
+                        <span class="post-category">
+                    Category:
+                            
+                                <a href="/categories/Distributed-System/">Distributed System</a>
+                            
+                        </span>
+                    
+                </div>
+            
+        </header>
+
+        <div class="post-content">
+            <p>译自<a
+target="_blank" rel="noopener" href="http://ksat.me/a-plain-english-introduction-to-cap-theorem">A
+plain english introduction to CAP Theorem</a></p>
+<p>可能你会经常听说在设计分布式系统的时候，有一套CAP理论限制，今天我们就试着通过一个现实中的解决方案来理解所谓的CAP。</p>
+<h2 id="chapter-1-记忆存储有限公司你的全新创业之旅">Chapter 1:
+“记忆存储有限公司”——你的全新创业之旅</h2>
+<p>昨晚，你多年的配偶由于收到了你为他准备的生日礼物，对你还记得她的生日表示了极大的欣赏与感激，这使得你催生了一个奇怪的想法。人们总是不善于记住事情，但是你却对此非常擅长，所以为什么你不能用你的天赋来进行一次创业呢？你越想越觉得喜欢这个想法，甚至在你脑海中已经形成了发布在报纸上的广告语。</p>
+<blockquote>
+<p>记忆存储公司！—— 完全不记也绝不会忘！</p>
+<p>你曾有过因为忘记事情而感到悲伤吗？别担心，只需要一通电话，就可以解决这样的烦恼。</p>
+<p>当你需要去记住一些事情的时候，只需要拨打135555REMEM然后告诉我们你需要记住什么。例如说，打给我们然后让我们记住你老板的电话，然后忘记它。当你需要知道它的时候，你只要再通过一样的电话135555REMEM打回来然后我们会告诉你你老板的电话是多少。</p>
+<p>收费：每次服务仅需0.1元</p>
+</blockquote>
+<p>因此，你通常的电话交流会类似下面这样：</p>
+<ul>
+<li>顾客：嘿，你可以帮我记下我邻居的生日吗？</li>
+<li>你：当然，他的生日是什么时候。</li>
+<li>顾客：1月2日</li>
+<li>你：（在你的笔记本上该顾客对应的那一页写下这个日子）存好了，在你再次需要知道你邻居生日的时候打给我们。</li>
+<li>顾客：非常感谢！</li>
+<li>你：没关系，我们会从你的信用卡上扣除0.1元。</li>
+</ul>
+<h2 id="chapter-2-公司业务增长">Chapter 2: 公司业务增长</h2>
+<p>好消息，你的创业项目被YCombinator赞助了。你的想法太过于简单，除了一个电话和一个纸质笔记本之外再不需要别的东西，当你的业务像火一样蔓延开来的时候，你开始一天要处理上百个电话服务。</p>
+<p>然后问题就出现了，你发现越来越多的客户需要在和你通电话之前排队，他们其中的大多数甚至因为等待的时间太长而挂掉了电话。除此之外，当你在某一天由于生病而无法工作时，你就丢失了一整天的生意，并且想想在那天需要从你这里获取信息的顾客有多么失望。</p>
+<p>你决定是时候扩展你的业务能力了，于是你找来了你的妻子帮你。
+你们商量了一个简单的计划：</p>
+<ol type="1">
+<li>你和你的妻子各有一部手机</li>
+<li>顾客仍然拨打135555REMEM，但需要额外记住一个数字</li>
+<li>一个pbx会将一个顾客的拨打平等的路由到你们其中空闲的人</li>
+</ol>
+<h2 id="chapter-3-创业路上的第一道坎">Chapter 3:
+创业路上的“第一道坎”</h2>
+<p>在你运作你的新工作模式2天之后，你从你的忠实客户Jhon那接到一通电话，通话如下：</p>
+<ul>
+<li>Jhon：嘿！</li>
+<li>你：非常荣幸接听您的来电，您需要什么帮助？</li>
+<li>Jhon：你可以告诉我我前往新德里的航班是什么时候吗？</li>
+<li>你：当然，请稍等 （你开始在你的笔记本中查找）
+（噢！在Jhon的页面中没有关于航班的条目信息）</li>
+<li>你：先生，您可能搞错了，您从来没有告诉过我们您到新德里的航班信息</li>
+<li>John：什么！我昨天明明给你们公司的员工通过电话！（愤怒的挂掉电话）</li>
+</ul>
+<p>为什么这种情况会发生呢？有可能是John撒谎了吗？你思考了一会心中有了答案！有可能是John昨天打给了你的妻子？你跑到妻子的办公桌前然后检查她的笔记本，发现John的那条记录果然记录在上面。你将这个事故告诉了你的妻子，她也意识到了问题的严重性。</p>
+<p>显然你设计的分布式工作模式中存在严重的缺陷！</p>
+<p><strong>你的分布式系统是不一致（not
+Consistent）的！有这样的情况存在：当一个顾客告诉了你或者你妻子一些事情，但是当他再次打过来的时候却被路由到了另一个人，因此在目前的记忆存储公司中产生不了一致性的回复。</strong></p>
+<h2 id="chapter-4-修复一致性的问题">Chapter 4: 修复一致性的问题</h2>
+<p>那么，你的竞争对手可能会忽略一次糟糕的服务，但是你不会，你想了这个问题一整晚，然后在早上得出了一个漂亮的计划，你把妻子叫醒然后告诉了她：
+“亲爱的，从现在开始我们要这样做”</p>
+<ul>
+<li>每当我们其中一个人接到一通电话客户要求我们记住或者更新某些事物（写）的时候，我们在挂掉电话之前要告诉彼此通话的内容</li>
+<li>通过这种方式，我们两个人都需要将获得的信息记录到笔记本上</li>
+<li>当有一个询问信息的通话（客户打电话过来请求我们告诉他他存储在我们这里的某些信息）（读）的时候，我们不再需要向彼此获取信息，因为我们两都有了最新的信息记录在笔记本上，我们可以直接回复客户</li>
+</ul>
+<p>”这个计划很完美，虽然存在一个问题“你说，“那就是一次更新请求需要我们两人同时处理，这样我们就不能并行工作了。例如当你接到一个更新请求并且告诉我也要更新的时候（写），我不能接听其他的电话。但是由于我们接到的电话大多数都是询问电话（读），因为客户总是告诉我们某些信息一次，但是询问它很多次，所以目前这个方案也还可行。另外，我们无论付出什么代价也千万不能告诉彼此错误的信息。“</p>
+<p>“非常干净利落的方案！“，你的妻子说，”但是你还是漏掉了这样的系统中仍然存在的一个缺陷。如果我们两个人其中某一个在某一个特殊的日子不工作怎么办？这样的话，我们就不能够接听任何更新信息的电话。因为我们中有一个人的信息没办法更新！</p>
+<p><strong>我们的系统存在可用性(Availability)问题，例如，在这种情况下，如果一个更新通话打进来，尽管我已经在我的笔记本上记录下来了这条信息，我永远也不能挂断电话，因为我在那天无法使得你也同步更新这条信息！</strong></p>
+<h2 id="chapter-5-有史以来最完美的计划">Chapter 5:
+有史以来最完美的计划？</h2>
+<p>你开始慢慢意识到你的分布式系统可能没有你一开始想的那么简单。难道想出一个同时兼具<strong>一致性和可用性</strong>的方案就这么难吗？这对其他人来说可能很难，但是对你来说并不！接着第二天清晨你又想到了一个方案，而你的竞争者却在睡大觉，梦里可没有这样的方案！你又一次早早的叫醒了妻子..</p>
+<p>"看"，你告诉她，“我们这样做就能同时保证一致性和可用性。“新的方案和昨天我告诉你的非常相似：</p>
+<ul>
+<li>i）
+每当我们其中一个人收到一通更新电话时，在挂掉电话之前，如果另外一个人今天在岗，我们就会把这通电话的内容告诉另外一个人，这种情况下我们两人都会在笔记本上记录下更新</li>
+<li>ii）但是如果另外一个人今天并不在岗，我们就需要向另外那个人发送一条包含更新内容的邮件</li>
+<li>iii）第二天当另外那个人休假结束回到岗位上的时候，在他开始今天的正式工作之前，他首先需要过一遍所有的邮件，<strong>按照顺序更新他的笔记本记录</strong></li>
+</ul>
+<p>“你真是个天才！”，妻子这样说，“我再找不出这个系统中的其他缺陷了，就让我们按照这套方案运行吧！记忆存储公司，现在终于<strong>兼备了一致性与可用性！</strong>”</p>
+<h2 id="chapter-6-妻子生气了">Chapter 6: 妻子生气了！！！</h2>
+<p>新方案实施后的一段时间以内，一切都是那么顺利，你们的系统是一致的，甚至在其中一个人没有办法工作的时候也能正常运行。但是如果当你们两个人都工作的时候，你们其中有一个人不向另外一个人更新信息怎么办呢？想一想那些天你老早就把妻子吵醒，然后告诉她你所谓的充满漏洞的“完美计划”，如果这使得在某一天你的妻子虽然愿意接听电话，但是对你太过于生气，不愿意与你交谈并且同步更新怎么办？你的想法通通失效了！你的方案目前来看虽然是一致的和可用的，但是却不是<strong>分区容忍（Partition
+Tolerant）</strong>的！</p>
+<p>你可以通过今天不接听任何电话而是哄妻子开心来实现解决分区容忍的问题..但是这样的话你的系统又没有办法正常运行了..</p>
+<h2 id="chapter-7-总结一下吧">Chapter 7: 总结一下吧～</h2>
+<p>现在我们再来看CAP理论，他是这样说的，当你设计一个分布式系统的时候，你往往不能同时实现<strong>一致性（Consistency），可用性（Availability）以及分区容忍性（Partition
+tolerance）</strong>三者，通常只能保证同时满足其中的两个性质。</p>
+<ul>
+<li>一致性（Consistency）：你的顾客，每当他们向你们更新信息的时候，他们总是能够在随后打回来的时候获取到<strong>最新的更新信息</strong>，无论他们打电话的间隔有多短</li>
+<li>可用性（Availability）：尽管你们其中一个人无法工作，记忆存储公司也还是能够提供服务</li>
+<li>分区容忍性（Partition
+tolerance）：记忆存储公司仍然能够工作，甚至当你和妻子之间丢失信息时候</li>
+</ul>
+<h2 id="bonus-通过招聘新员工达成最终一致性">Bonus:
+通过招聘新员工达成最终一致性</h2>
+<p>有另外一个值得深思的地方，你可以招聘一个秘书，他负责当你们其中一个人的笔记有更加新的信息的时候，更新其他人的笔记本。这样带来的巨大好处是，他可以在后台工作，因此你或者你妻子的更新操作不会由于等待对方的更新而被“阻塞”。这是很多NoSql系统的工作方式，一个结点在本地对自己更新之后，一个后台的进程将会逐步同步其他结点的更新，最终达到一致性。唯一的问题是，你们可能会在某些时候丢失一致性，例如，一个顾客的更新信息首先给到了你的妻子，在秘书在有机会对你的笔记本进行更新之前，顾客打回来电话并且被路由到了你这里，这样他就无法获得一个一致性的回复。但是如果这种情况并不会产生多大的影响，这就是一个不错的方案，比如说假设顾客不会那么快（例如5分钟之内）忘记事情然后打回来。</p>
+<p>这就是CAP理论和最终一致性，通过大白话讲给你听。</p>
+
+        </div>
+
+        
+            <section class="post-copyright">
+                
+                
+                
+                    <p class="copyright-item">
+                        <span>License:</span>
+                        <span>Copyright (c) 2023 <a target="_blank" rel="noopener" href="http://creativecommons.org/licenses/by-nc/4.0/">CC-BY-NC-4.0</a> LICENSE</span>
+                    </p>
+                
+                
+
+            </section>
+        
+        <section class="post-tags">
+            <div>
+                <span>Tag(s):</span>
+                <span class="tag">
+                    
+                    
+                        <a href="/tags/distributed/"># distributed</a>
+                    
+                        <a href="/tags/CAP/"># CAP</a>
+                    
+                        <a href="/tags/consistency/"># consistency</a>
+                    
+                        <a href="/tags/availability/"># availability</a>
+                    
+                        
+                </span>
+            </div>
+            <div>
+                <a href="javascript:window.history.back();">back</a>
+                <span>· </span>
+                <a href="/">home</a>
+            </div>
+        </section>
+        <section class="post-nav">
+            
+                <a class="prev" rel="prev" href="/2023/02/25/15/38/">深入浅出Disk IO</a>
+            
+            
+            <a class="next" rel="next" href="/2022/11/02/20/21/">【文献精读】Sinan: ML-Based and QoS-Aware Resource Management for Cloud Microservices</a>
+            
+        </section>
+
+
+    </article>
+</div>
+
+            </div>
+            <footer id="footer" class="footer">
+    <div class="copyright">
+        <span>© Gunther Xing | Powered by <a href="https://hexo.io" target="_blank">Hexo</a> & <a href="https://github.com/Siricee/hexo-theme-Chic" target="_blank">Chic</a></span>
+    </div>
+</footer>
+
+    </div>
+</body>
+
+</html>
