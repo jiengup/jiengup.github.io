@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="">
+
+<head>
+    <meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <meta name="author" content="Gunther Xing">
+
+
+    <meta name="subtitle" content="A blog site belong to Gunther Xing">
+
+
+
+
+<title>【文献精读】FIRM: An Intelligent Fine-Grained Resource Management Framework for SLO-Oriented Microservices 微服务下基于关键节点提取和强化学习的的细粒度资源管理框架 | Gunther&#39;s Blog</title>
+
+
+
+    <link rel="icon" href="/J_Drive.ico">
+
+
+
+
+    <!-- stylesheets list from _config.yml -->
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+
+
+
+    <!-- scripts list from _config.yml -->
+    
+    <script src="/js/script.js"></script>
+    
+    <script src="/js/tocbot.min.js"></script>
+    
+
+
+
+    
+    
+        <!-- MathJax配置，可通过单美元符号书写行内公式等 -->
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+    "HTML-CSS": {
+        preferredFont: "TeX",
+        availableFonts: ["STIX","TeX"],
+        linebreaks: { automatic:true },
+        EqnChunk: (MathJax.Hub.Browser.isMobile ? 10 : 50)
+    },
+    tex2jax: {
+        inlineMath: [ ["$", "$"], ["\\(","\\)"] ],
+        processEscapes: true,
+        ignoreClass: "tex2jax_ignore|dno",
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    },
+    TeX: {
+        equationNumbers: { autoNumber: "AMS" },
+        noUndefined: { attributes: { mathcolor: "red", mathbackground: "#FFEEEE", mathsize: "90%" } },
+        Macros: { href: "{}" }
+    },
+    messageStyle: "none"
+    });
+</script>
+<!-- 给MathJax元素添加has-jax class -->
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+<!-- 通过连接CDN加载MathJax的js代码 -->
+<script type="text/javascript" async
+        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+
+
+    
+
+
+<meta name="generator" content="Hexo 6.2.0"></head>
+
+<body>
+    <script>
+        // this function is used to check current theme before page loaded.
+        (() => {
+            const currentTheme = window.localStorage && window.localStorage.getItem('theme') || '';
+            const isDark = currentTheme === 'dark';
+            const pagebody = document.getElementsByTagName('body')[0]
+            if (isDark) {
+                pagebody.classList.add('dark-theme');
+                // mobile
+                document.getElementById("mobile-toggle-theme").innerText = "· Dark"
+            } else {
+                pagebody.classList.remove('dark-theme');
+                // mobile
+                document.getElementById("mobile-toggle-theme").innerText = "· Light"
+            }
+        })();
+    </script>
+
+    <div class="wrapper">
+        <header>
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-header header-logo"><a href="/">Gunther&#39;s Blog</a></div>
+            <div class="menu navbar-right">
+                
+                    <a class="menu-item" href="/archives">Posts</a>
+                
+                    <a class="menu-item" href="/category">Categories</a>
+                
+                    <a class="menu-item" href="/tag">Tags</a>
+                
+                    <a class="menu-item" href="/about">About</a>
+                
+                <input id="switch_default" type="checkbox" class="switch_default">
+                <label for="switch_default" class="toggleBtn"></label>
+            </div>
+        </div>
+    </nav>
+
+    
+    <nav class="navbar-mobile" id="nav-mobile">
+        <div class="container">
+            <div class="navbar-header">
+                <div>
+                    <a href="/">Gunther&#39;s Blog</a><a id="mobile-toggle-theme">·&nbsp;Light</a>
+                </div>
+                <div class="menu-toggle" onclick="mobileBtn()">&#9776; Menu</div>
+            </div>
+            <div class="menu" id="mobile-menu">
+                
+                    <a class="menu-item" href="/archives">Posts</a>
+                
+                    <a class="menu-item" href="/category">Categories</a>
+                
+                    <a class="menu-item" href="/tag">Tags</a>
+                
+                    <a class="menu-item" href="/about">About</a>
+                
+            </div>
+        </div>
+    </nav>
+
+</header>
+<script>
+    var mobileBtn = function f() {
+        var toggleMenu = document.getElementsByClassName("menu-toggle")[0];
+        var mobileMenu = document.getElementById("mobile-menu");
+        if(toggleMenu.classList.contains("active")){
+           toggleMenu.classList.remove("active")
+            mobileMenu.classList.remove("active")
+        }else{
+            toggleMenu.classList.add("active")
+            mobileMenu.classList.add("active")
+        }
+    }
+</script>
+            <div class="main">
+                <div class="container">
+    
+    
+        <div class="post-toc">
+    <div class="tocbot-list">
+    </div>
+    <div class="tocbot-list-menu">
+        <a class="tocbot-toc-expand" onclick="expand_toc()">Expand all</a>
+        <a onclick="go_top()">Back to top</a>
+        <a onclick="go_bottom()">Go to bottom</a>
+    </div>
+</div>
+
+<script>
+    var tocbot_timer;
+    var DEPTH_MAX = 6; // 为 6 时展开所有
+    var tocbot_default_config = {
+        tocSelector: '.tocbot-list',
+        contentSelector: '.post-content',
+        headingSelector: 'h1, h2, h3, h4, h5',
+        orderedList: false,
+        scrollSmooth: true,
+        onClick: extend_click,
+    };
+
+    function extend_click() {
+        clearTimeout(tocbot_timer);
+        tocbot_timer = setTimeout(function() {
+            tocbot.refresh(obj_merge(tocbot_default_config, {
+                hasInnerContainers: true
+            }));
+        }, 420); // 这个值是由 tocbot 源码里定义的 scrollSmoothDuration 得来的
+    }
+
+    document.ready(function() {
+        tocbot.init(obj_merge(tocbot_default_config, {
+            collapseDepth: 1
+        }));
+    });
+
+    function expand_toc() {
+        var b = document.querySelector('.tocbot-toc-expand');
+        var expanded = b.getAttribute('data-expanded');
+        expanded ? b.removeAttribute('data-expanded') : b.setAttribute('data-expanded', true);
+        tocbot.refresh(obj_merge(tocbot_default_config, {
+            collapseDepth: expanded ? 1 : DEPTH_MAX
+        }));
+        b.innerText = expanded ? 'Expand all' : 'Collapse all';
+    }
+
+    function go_top() {
+        window.scrollTo(0, 0);
+    }
+
+    function go_bottom() {
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+    function obj_merge(target, source) {
+        for (var item in source) {
+            if (source.hasOwnProperty(item)) {
+                target[item] = source[item];
+            }
+        }
+        return target;
+    }
+</script>
+    
+
+    
+    <article class="post-wrap">
+        <header class="post-header">
+            <h1 class="post-title">【文献精读】FIRM: An Intelligent Fine-Grained Resource Management Framework for SLO-Oriented Microservices 微服务下基于关键节点提取和强化学习的的细粒度资源管理框架</h1>
+            
+                <div class="post-meta">
+                    
+
+                    
+                        <span class="post-time">
+                        Date: <a href="#">June 8, 2023&nbsp;&nbsp;19:43:38</a>
+                        </span>
+                    
+                    
+                </div>
+            
+        </header>
+
+        <div class="post-content">
+            <h2 id="metadata">Metadata</h2>
+<blockquote>
+<ul>
+<li><strong>Authors:</strong> Haoran Qiu, Subho S Banerjee, Saurabh Jha,
+Zbigniew T Kalbarczyk, Ravishankar K Iyer</li>
+<li><strong>Cite Key:</strong> [<span class="citation"
+data-cites="qiuFIRMIntelligentFineGrained">[@qiuFIRMIntelligentFineGrained]</span>]</li>
+<li><strong>Link:</strong> <a
+href="file:///Users/xingguangjie/Library/Mobile%20Documents/com~apple~CloudDocs/Zotero/FIRM_.pdf">FIRM_.pdf</a></li>
+<li><strong>Bibliography:</strong> Qiu, H., Banerjee, S. S., Jha, S.,
+Kalbarczyk, Z. T., &amp; Iyer, R. K. (n.d.). <em>FIRM: An Intelligent
+Fine-Grained Resource Management Framework for SLO-Oriented
+Microservices</em>.</li>
+</ul>
+</blockquote>
+<h2 id="abstract">Abstract</h2>
+<blockquote>
+<p>User-facing latency-sensitive web services include numerous
+distributed, intercommunicating microservices that promise to simplify
+software development and operation. However, multiplexing of compute
+resources across microservices is still challenging in production
+because contention for shared resources can cause latency spikes that
+violate the servicelevel objectives (SLOs) of user requests. This paper
+presents FIRM, an intelligent ﬁne-grained resource management framework
+for predictable sharing of resources across microservices to drive up
+overall utilization. FIRM leverages online telemetry data and
+machine-learning methods to adaptively (a) detect/localize microservices
+that cause SLO violations, (b) identify low-level resources in
+contention, and (c) take actions to mitigate SLO violations via dynamic
+reprovisioning. Experiments across four microservice benchmarks
+demonstrate that FIRM reduces SLO violations by up to 16× while reducing
+the overall requested CPU limit by up to 62%. Moreover, FIRM improves
+performance predictability by reducing tail latencies by up to 11×.##
+Annotations</p>
+</blockquote>
+<h2 id="main-content">Main Content</h2>
+<p>本文提出了FIRM，一个智能的、细粒度的资源管理框架，用以预测不同微服务之间的共享资源，以提升整体的利用率。FIRM使用在线遥测技术和机器学习方法来适应性的：</p>
+<ul>
+<li>检测和定位触犯SLO的微服务</li>
+<li>识别竞争中的低级资源</li>
+<li>通过动态分配以缓解SLO触犯 其主要贡献有：</li>
+<li>提出了一种基于SVM的SLO触犯定位方法</li>
+<li>给予强化学习的SLO触犯缓解措施，并且能够通过使用 tranfer learning
+为单个微服务实例调优定制的 RL 代理</li>
+<li>在线的训练以及性能异常注入，人工创造资源竞争的情况，由此来构造训练集</li>
+<li>实现和验证，开源了针对k8s的FIRM框架，并且在四个真实微服务benchmark上进行了测试</li>
+</ul>
+<h3 id="firm-框架">FIRM 框架</h3>
+<figure>
+<img
+src="https://cdn.jsdelivr.net/gh/jiengup/ImageBed@main/picgo202305191640816.png"
+alt="image.png" />
+<figcaption aria-hidden="true">image.png</figcaption>
+</figure>
+<ol type="1">
+<li><em>Tracing
+Coordinator</em>：负责收集负载和遥测数据(资源数据，1)并将它们存储在一个中心化的图数据库中，以监测关键路径的变化并从中抽取出关键微服务实例</li>
+<li><em>Extractor</em>：监测SLO触犯，向Tracing
+Coordinator查询抽取出的CP(2)并定位关键的SLO触犯根因微服务实例(3)</li>
+<li><em>RL-based Resource
+Estimator</em>：通过监测数据(1)以及关键实例(3)，FIRM通过强化学习模型来向关键实例重新分配资源，RL模型会综合考虑资源利用率的上下文信息（例如底层资源CPU、LLC、内存以及网络），性能信息（例如每个微服务的以及端到端的延时分布）以及负载特征（例如请求速率以及成分）等来进行决策</li>
+<li><em>Deployment</em>：动作被验证和执行，以在底层为k8s的集群上部署</li>
+<li><em>Performance Anomaly
+Injection</em>：为了更好的训练机器学习模型和强化学习智能体（扩展exploration-exploitation
+space），FIRM通过主动引发资源竞争来生成SLO触犯 ### Tracing Coordinator
+FIRM实现一个分布式Tracing，用于构建<em>excution history
+graph</em>。<em>span</em>是指一个微服务实例处理一次请求所需要的时间，它是基于请求达到微服务到其发送恢复给调用者的时间计算的</li>
+</ol>
+<p>FIRM的实现受到了Jaeger的启发，每一个微服务实例都伴有一个OpenTracing组件用以追踪和计算span，因此任何伴有OpenTracing组件的微服务都能自然的集成进FIRM的tracing框架。</p>
+<p>Tracing
+Coordinator作为一个无服务的、多副本的数据处理组件运行在系统中，其造成的负荷可以忽略不计（小于0.4%的带宽损失和小于0.15%的延时损失）</p>
+<h3 id="critical-path-extractorcritical-component-extractor">Critical
+Path Extractor&amp;Critical Component Extractor</h3>
+<p>使用算法1可以在execution history
+graph中抽取出关键路径，算法1的核心是一个权重最长路径算法，它需要同时考虑微服务架构中的通讯和计算特征（Parallel、Sequential、Background）
+<img
+src="https://cdn.jsdelivr.net/gh/jiengup/ImageBed@main/picgo202305191725444.png"
+alt="image.png" />
+在此之后，FIRM在每个抽取出来的CP中使用一个适应性强的、数据驱动的方法来决定关键成分（微服务实例），整个过程如算法2所示。算法首先计算每一个CP和每一个实例的“特征”，表示性能的变化和拥塞程度，记者这两种特征被喂入一个SVM分类器得到二分类结果（即实例是否应该改变其资源进行重新分配）</p>
+<p>为了达到这个目的，需要从两个方面考虑：端到端延时的变化以及单个微服务由于服务队列导致的竞争而发生的变化：</p>
+<ul>
+<li>Per-CP
+Variability：皮尔森相关系数衡量单个微服务延时对于整个端到端延时的影响力</li>
+<li>Per-Instance
+Variablity：单个微服务的拥塞强度（定义为p-99延时和延时中位数之比） <img
+src="https://cdn.jsdelivr.net/gh/jiengup/ImageBed@main/picgo202305201449267.png" />
+### Resource Estimator
+传统的基于性能建模和启发式的方法都存在两个问题：</li>
+</ul>
+<ol type="1">
+<li>它们没有考虑系统状态的动态性</li>
+<li>设计、实现和验证方法需要专家知识，并且需要同时掌握微服务负载特征和底层架构
+强化学习在探索动作空间和生成最优策略时提供了紧密的反馈，且不需要依赖一个不准确的假设（启发式或者规则）</li>
+</ol>
+<p>FIRM采用[[DDPG算法]]来进行强化学习
+critic网络和actor网络结构如下图所示，actor网络有8个输入和5个输出，critic网络有23个输入和1个输出，它们的输入输出含义由表3所示
+<img
+src="https://cdn.jsdelivr.net/gh/jiengup/ImageBed@main/picgo202305201640055.png" /></p>
+<p>在每一个迭代步中，每一种资源的利用率<span
+class="math inline">\(RU_t\)</span>是通过Tracing
+Coordinator获得的遥测数据（table
+2）得到的，除此之外，Extractor还有收集当前的延时、请求到达速率以及请求构成（当前请求的种类），强化学习智能体会根据这些数据计算状态（table
+3） <img
+src="https://cdn.jsdelivr.net/gh/jiengup/ImageBed@main/picgo202305201611869.png"
+alt="image.png" /> <img
+src="https://cdn.jsdelivr.net/gh/jiengup/ImageBed@main/picgo202305201611604.png"
+alt="image.png" /></p>
+<ul>
+<li><span
+class="math inline">\(SM_t\)</span>：若微服务实例被定为罪魁祸首则定义为<span
+class="math inline">\(SLO\_Latency/current\_latency\)</span>，如果没有消息到达，则设定为没有SLO触犯（<span
+class="math inline">\(SM_t=1\)</span>）</li>
+<li><span
+class="math inline">\(WC_t\)</span>：定义为当前的到达率和前一个时间戳到达率的比</li>
+<li><span
+class="math inline">\(RC_t\)</span>定义为一个唯一的值，从一个请求占比数组中编码而来（使用numpy包）</li>
+</ul>
+<p>FIRM通过transfer
+learning来解决为每个微服务定制模型造成的庞大时间开销</p>
+<h3 id="action-execution">Action Execution</h3>
+<p>FIRM假设物理机资源是无穷的，因此没有设计准入和节流策略，如果一个动作会导致资源撑爆了，那么它会被替代为一个scale-out操作</p>
+<ul>
+<li>CPU动作：通过cgroups的<code>cpu.cfs_period_us</code>和<code>cpu.cfs_quota_us</code>实现</li>
+<li>内存动作：通过Intel MBA和Intel CAT技术来控制内存带宽和LLC容量</li>
+<li>I/O动作：使用cgroup中的<code>blkio</code>来控制</li>
+<li>网络动作：使用HTB队列控制</li>
+</ul>
+<h3 id="performance-anomaly-injector">Performance Anomaly Injector</h3>
+<p>通过异常注入引发SLO违背可以加速训练过程并且扩展强化学习在不利的资源竞争的空间中探索（也就是所说的exploration-exploitation
+trade off）
+异常注入通过将二进制文件绑定到每一个容器的操作系统层实现，并且可以远程触发，而且可以随时控制注入目标，异常种类，注入时间、区间、模式和强度，注入由7种可能触发SLO违背的性能异常构成
+<img
+src="https://cdn.jsdelivr.net/gh/jiengup/ImageBed@main/picgo202305201700679.png"
+alt="image.png" /></p>
+<h2 id="details">Details</h2>
+<h3
+id="firm缓解slo触犯时不会过度分配-这是因为">FIRM缓解SLO触犯时不会过度分配,
+这是因为：</h3>
+<ol type="1">
+<li>它将底层资源和应用性能之间的依赖通过基于强化学习的反馈回路进行建模，以解决不确定性和存在的噪声</li>
+<li>它使用了一个两层的方法，在线关键路径分析和SVM模型仅仅过滤出那些需要被考虑的微服务，因此使得应用框架无关并且使得强化学习代理训练更加快速
+### Critical Path(CP) 微服务<span class="math inline">\(m\)</span>的一个
+<strong>critical path(CP)</strong>
+定义为由用户请求启动的，并且以微服务<span
+class="math inline">\(m\)</span>结束的最长调用路径，而如果单独说CP而不提任何微服务，那么CP就指代端到端延时</li>
+</ol>
+<p>通过在开源数据集上进行大量的异常注入实验，有了如下的发现： 1.
+CP的行为是动态的，因为底层的共享资源会发生竞争 <img
+src="https://cdn.jsdelivr.net/gh/jiengup/ImageBed@main/picgo202305182151634.png"
+alt="image.png" /> 2.
+有着较大负载的个体微服务通常不是导致触犯SLO的罪魁祸首，但是<strong>文章假设罪魁祸首一定在CP上(?)</strong>
+<img
+src="https://cdn.jsdelivr.net/gh/jiengup/ImageBed@main/picgo202305182152374.png"
+alt="image.png" /> 3.
+缓解SLO触犯的策略要根据用户负载和资源竞争情况不同而发生变化 1.
+一般来说，通常有两种办法可以向关键微服务提供更多资源 1. <em>scale
+out</em>：在集群的另一个node上启动一个新的容器实例 2. <em>scale
+up</em>：向已存在的容器显式地划分更多资源（例如内存带宽和最后一级缓存）提供更多的CPU核
+2. scale out和scale up之间的trade
+off不仅取决于用户负载，同样也取决于资源类别 <img
+src="https://cdn.jsdelivr.net/gh/jiengup/ImageBed@main/picgo202305191641024.png" /></p>
+
+        </div>
+
+        
+            <section class="post-copyright">
+                
+                
+                
+                    <p class="copyright-item">
+                        <span>License:</span>
+                        <span>Copyright (c) 2023 <a target="_blank" rel="noopener" href="http://creativecommons.org/licenses/by-nc/4.0/">CC-BY-NC-4.0</a> LICENSE</span>
+                    </p>
+                
+                
+
+            </section>
+        
+        <section class="post-tags">
+            <div>
+                <span>Tag(s):</span>
+                <span class="tag">
+                    
+                    
+                        <a href="/tags/Microservice/"># Microservice</a>
+                    
+                        <a href="/tags/Reinforcement-Learning/"># Reinforcement Learning</a>
+                    
+                        <a href="/tags/Resource-Management/"># Resource Management</a>
+                    
+                        <a href="/tags/Method-Benchmark/"># Method Benchmark</a>
+                    
+                        
+                </span>
+            </div>
+            <div>
+                <a href="javascript:window.history.back();">back</a>
+                <span>· </span>
+                <a href="/">home</a>
+            </div>
+        </section>
+        <section class="post-nav">
+            
+            
+            <a class="next" rel="next" href="/2023/04/14/19/10/">【文献精读】The Power of Prediction: Microservice Auto Scaling via Workload Learning 微服务下的负载预测及资源分配</a>
+            
+        </section>
+
+
+    </article>
+</div>
+
+            </div>
+            <footer id="footer" class="footer">
+    <div class="copyright">
+        <span>© Gunther Xing | Powered by <a href="https://hexo.io" target="_blank">Hexo</a> & <a href="https://github.com/Siricee/hexo-theme-Chic" target="_blank">Chic</a></span>
+    </div>
+</footer>
+
+    </div>
+</body>
+
+</html>
