@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="">
+
+<head>
+    <meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <meta name="author" content="Gunther Xing">
+
+
+    <meta name="subtitle" content="A blog site belong to Gunther Xing">
+
+
+
+
+<title>如何给开源项目做贡献 | Gunther&#39;s Blog</title>
+
+
+
+    <link rel="icon" href="/J_Drive.ico">
+
+
+
+
+    <!-- stylesheets list from _config.yml -->
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+
+
+
+    <!-- scripts list from _config.yml -->
+    
+    <script src="/js/script.js"></script>
+    
+    <script src="/js/tocbot.min.js"></script>
+    
+
+
+
+    
+    
+        <!-- MathJax配置，可通过单美元符号书写行内公式等 -->
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+    "HTML-CSS": {
+        preferredFont: "TeX",
+        availableFonts: ["STIX","TeX"],
+        linebreaks: { automatic:true },
+        EqnChunk: (MathJax.Hub.Browser.isMobile ? 10 : 50)
+    },
+    tex2jax: {
+        inlineMath: [ ["$", "$"], ["\\(","\\)"] ],
+        processEscapes: true,
+        ignoreClass: "tex2jax_ignore|dno",
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    },
+    TeX: {
+        equationNumbers: { autoNumber: "AMS" },
+        noUndefined: { attributes: { mathcolor: "red", mathbackground: "#FFEEEE", mathsize: "90%" } },
+        Macros: { href: "{}" }
+    },
+    messageStyle: "none"
+    });
+</script>
+<!-- 给MathJax元素添加has-jax class -->
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+<!-- 通过连接CDN加载MathJax的js代码 -->
+<script type="text/javascript" async
+        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+
+
+    
+
+
+<meta name="generator" content="Hexo 6.2.0"></head>
+
+<body>
+    <script>
+        // this function is used to check current theme before page loaded.
+        (() => {
+            const currentTheme = window.localStorage && window.localStorage.getItem('theme') || '';
+            const isDark = currentTheme === 'dark';
+            const pagebody = document.getElementsByTagName('body')[0]
+            if (isDark) {
+                pagebody.classList.add('dark-theme');
+                // mobile
+                document.getElementById("mobile-toggle-theme").innerText = "· Dark"
+            } else {
+                pagebody.classList.remove('dark-theme');
+                // mobile
+                document.getElementById("mobile-toggle-theme").innerText = "· Light"
+            }
+        })();
+    </script>
+
+    <div class="wrapper">
+        <header>
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-header header-logo"><a href="/">Gunther&#39;s Blog</a></div>
+            <div class="menu navbar-right">
+                
+                    <a class="menu-item" href="/archives">Posts</a>
+                
+                    <a class="menu-item" href="/category">Categories</a>
+                
+                    <a class="menu-item" href="/tag">Tags</a>
+                
+                    <a class="menu-item" target="_blank" rel="noopener" href="https://reason-for-live.pages.dev/">Reason For Live</a>
+                
+                <input id="switch_default" type="checkbox" class="switch_default">
+                <label for="switch_default" class="toggleBtn"></label>
+            </div>
+        </div>
+    </nav>
+
+    
+    <nav class="navbar-mobile" id="nav-mobile">
+        <div class="container">
+            <div class="navbar-header">
+                <div>
+                    <a href="/">Gunther&#39;s Blog</a><a id="mobile-toggle-theme">·&nbsp;Light</a>
+                </div>
+                <div class="menu-toggle" onclick="mobileBtn()">&#9776; Menu</div>
+            </div>
+            <div class="menu" id="mobile-menu">
+                
+                    <a class="menu-item" href="/archives">Posts</a>
+                
+                    <a class="menu-item" href="/category">Categories</a>
+                
+                    <a class="menu-item" href="/tag">Tags</a>
+                
+                    <a class="menu-item" target="_blank" rel="noopener" href="https://reason-for-live.pages.dev/">Reason For Live</a>
+                
+            </div>
+        </div>
+    </nav>
+
+</header>
+<script>
+    var mobileBtn = function f() {
+        var toggleMenu = document.getElementsByClassName("menu-toggle")[0];
+        var mobileMenu = document.getElementById("mobile-menu");
+        if(toggleMenu.classList.contains("active")){
+           toggleMenu.classList.remove("active")
+            mobileMenu.classList.remove("active")
+        }else{
+            toggleMenu.classList.add("active")
+            mobileMenu.classList.add("active")
+        }
+    }
+</script>
+            <div class="main">
+                <div class="container">
+    
+    
+        <div class="post-toc">
+    <div class="tocbot-list">
+    </div>
+    <div class="tocbot-list-menu">
+        <a class="tocbot-toc-expand" onclick="expand_toc()">Expand all</a>
+        <a onclick="go_top()">Back to top</a>
+        <a onclick="go_bottom()">Go to bottom</a>
+    </div>
+</div>
+
+<script>
+    var tocbot_timer;
+    var DEPTH_MAX = 6; // 为 6 时展开所有
+    var tocbot_default_config = {
+        tocSelector: '.tocbot-list',
+        contentSelector: '.post-content',
+        headingSelector: 'h1, h2, h3, h4, h5',
+        orderedList: false,
+        scrollSmooth: true,
+        onClick: extend_click,
+    };
+
+    function extend_click() {
+        clearTimeout(tocbot_timer);
+        tocbot_timer = setTimeout(function() {
+            tocbot.refresh(obj_merge(tocbot_default_config, {
+                hasInnerContainers: true
+            }));
+        }, 420); // 这个值是由 tocbot 源码里定义的 scrollSmoothDuration 得来的
+    }
+
+    document.ready(function() {
+        tocbot.init(obj_merge(tocbot_default_config, {
+            collapseDepth: 1
+        }));
+    });
+
+    function expand_toc() {
+        var b = document.querySelector('.tocbot-toc-expand');
+        var expanded = b.getAttribute('data-expanded');
+        expanded ? b.removeAttribute('data-expanded') : b.setAttribute('data-expanded', true);
+        tocbot.refresh(obj_merge(tocbot_default_config, {
+            collapseDepth: expanded ? 1 : DEPTH_MAX
+        }));
+        b.innerText = expanded ? 'Expand all' : 'Collapse all';
+    }
+
+    function go_top() {
+        window.scrollTo(0, 0);
+    }
+
+    function go_bottom() {
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+    function obj_merge(target, source) {
+        for (var item in source) {
+            if (source.hasOwnProperty(item)) {
+                target[item] = source[item];
+            }
+        }
+        return target;
+    }
+</script>
+    
+
+    
+    <article class="post-wrap">
+        <header class="post-header">
+            <h1 class="post-title">如何给开源项目做贡献</h1>
+            
+                <div class="post-meta">
+                    
+
+                    
+                        <span class="post-time">
+                        Date: <a href="#">December 11, 2023&nbsp;&nbsp;17:37:38</a>
+                        </span>
+                    
+                    
+                </div>
+            
+        </header>
+
+        <div class="post-content">
+            <h2 id="如何寻找一个合适的开源项目">1. 如何寻找一个合适的开源项目</h2>
+<ul>
+<li>可以选择知名的开源软件基金会的孵化项目，比如Apache基金会、Linux基金会、CNCF等寻找一个不那么成熟，但是又形成了代码规范、协作流程规范的入门项目
+<ul>
+<li><a target="_blank" rel="noopener" href="https://www.cncf.io/sandbox-projects/">CNCF
+沙箱项目</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.cncf.io/projects/">CNCF
+孵化项目(列表包括毕业项目)</a></li>
+<li><a target="_blank" rel="noopener" href="https://projects.apache.org/projects.html">Apache
+项目(孵化期项目名字中带 Incubating)</a></li>
+</ul></li>
+</ul>
+<h2 id="寻找贡献点">2. 寻找贡献点</h2>
+<ol type="1">
+<li>在Issues里面，可以找到带有<strong>good firest
+issue</strong>标签标记的issue</li>
+<li>找到合适的issue之后，在下面留言，等待项目管理员回复，将该issue分配给你</li>
+<li>在正式开工之前，需要过一遍该项目的<strong>CONTRIBUTING.md</strong>文档，明晰该项目的贡献规范</li>
+</ol>
+<h2 id="开工">3. 开工</h2>
+<ol type="1">
+<li>Fork项目仓库</li>
+<li>将项目仓库克隆到本地</li>
+<li>配置git remote，注意git
+remote的pull配置为云端仓库，而push则配置为garbege，注意<strong>本地的代码变更永远只提交到origin，然后通过
+origin 以提交 Pull Request 的形式请求与upstream合并</strong></li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">git remote add upstream https://github.com/<span class="variable">$&#123;USER&#125;</span>/<span class="variable">$&#123;PROJECT&#125;</span>.git <span class="comment"># 运行完这一步remote的 push和 pull url 均被设置为https://github.com/$&#123;USER&#125;/$&#123;PROJECT&#125;.git</span></span><br><span class="line">git remote set-url --push upstream no_push</span><br></pre></td></tr></table></figure>
+<ol start="4" type="1">
+<li>不太建议直接在main分支上进行开发，可以先创建一个更可读的分支来完成开发，一般命名为<em>feat-xxx</em></li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git checkout -b feat-xxx</span><br></pre></td></tr></table></figure>
+<ol start="5" type="1">
+<li>在本地进行开发，更新本地分支的代码，注意每次开工之前都需要先将云端最新的更新同步下来</li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">git fetch upstream</span><br><span class="line">git checkout main</span><br><span class="line">git rebase upstream/main</span><br></pre></td></tr></table></figure>
+<ol start="6" type="1">
+<li>正常流程add，commit，注意commit的时候<strong>一般要加上<code>-s</code>参数</strong>，用来标记证书审查。另外有的项目对commit的message格式有要求</li>
+<li>将代码push到之前fork的云端仓库中</li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git push origin feat-xxx</span><br></pre></td></tr></table></figure>
+<h2 id="在github中操作提出一个pr">4. 在github中操作，提出一个PR</h2>
+<p>一般完成push之后，如果这个仓库是你fork来的，那么github会在repo头部提示让你开一个Pull
+Request <img
+src="https://cdn.jsdelivr.net/gh/jiengup/ImageBed@main/picgo%9%AA%8C1%20%E6%88%90%E5%8A%9F%E8%AE%BF%E9%97%AEftp%E6%9C%8D%E5%8A%A1%E5%99%A8.pic.jpg" /><img
+src="https://cdn.jsdelivr.net/gh/jiengup/ImageBed@main/picgo202302121554069.png"
+alt="image.png" />
+如果没有的话，也可以切换到feat-xxx分支，然后点击下方的“Contribute”按钮开启一个PR，或者直接点Issuses边上的Pull
+Request按钮进入对应页面
+一般来说，提交的PR都有项目管理员预设的文档模板，需要根据文档格式编写提交PR的文档，使得管理员可以明晰你所做的工作，解决的问题，以及通过测试的情况，一般的模板需要包含以下内容：</p>
+<ol type="1">
+<li><strong>Pre-Checklist</strong>：这里列了3个前置检查项，提醒 PR
+提交者要先阅读 Contributing
+文档，然后代码要有完善的注释或者文档，尽可能添加测试用例等；</li>
+<li><strong>Description</strong>：这里填写的是 PR
+的描述信息，也就是介绍你的 PR 内容的，你可以在这里描述这个 PR
+解决了什么问题等；</li>
+<li><strong>Related
+Issues</strong>：记得吗？我们在开始写代码之前其实是需要认领 issue
+的，这里要填写的也就是对应 issue 的 id，假如你领的 issue 链接是 <a
+target="_blank" rel="noopener" href="https://github.com/devstream-io/devstream/issues/796">https://github.com/devstream-io/devstream/issues/796</a>，并且这个
+issue 通过你这个 PR 的修改后就完成了，可以关闭了，这时候可以在 Related
+Issues 下面写“<strong>close #796</strong>”；</li>
+<li><strong>New
+Behavior</strong>：代码修改后绝大多数情况下是需要进行测试的，这时候我们可以在这里粘贴测试结果截图，这样
+reviewers 就能够知道你的代码已经通过测试，功能符合预期，这样可以减少
+review 工作量，快速合入。</li>
+</ol>
+<p>提交完成之后，可能会执行预设的CI，检查提交的代码，如果有的测试样例没有通过，则需要修复，直至通过所有的样例。
+后续有新的变更（例如根据Reviewers的意见修改或者自行作出的变更），可以直接<code>git push origin feat-xxx</code>来进行提交，github会帮你把新增的commits全部追加到一个未合入的PR里面去。</p>
+<h2 id="合并commit">5. 合并commit</h2>
+<ul>
+<li>git命令行方式合并</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 合并HEAD和HEAD指向的前一个，共两个commit，这里也可以给出commit list（版本号表示）</span></span><br><span class="line">git rebase -i HEAD~2</span><br></pre></td></tr></table></figure>
+<p>这样根据流程先后配置需要保留和舍弃的commit、解决冲突以及修改commit
+message等，就可以合并若干个commit，生成简洁有效的变更信息了。注意，这样合并完之后再向云端push的时候，需要加入<code>-f</code>参数强制执行，冲掉之前的变更信息</p>
+<h2 id="解决pr产生的冲突">6. 解决PR产生的冲突</h2>
+<ul>
+<li>在线解决冲突，可以直接在github里面查看并修改冲突的文件，需要删掉所有的 ''&lt;&lt;&lt;&lt;&lt;&lt;&lt;''、''&gt;&gt;&gt;&gt;&gt;&gt;&gt;'' 和 ''======='' 标记，只保留最终想要的内容，以这种方式解决的冲突<strong>会在github上产生一条变更记录</strong></li>
+<li>本地解决冲突</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 先切回到 main 分支</span></span><br><span class="line">git checkout main</span><br><span class="line"><span class="comment"># 拉取上游代码（实际场景肯定是和上游冲突，我们这里的演示环境其实是 origin）</span></span><br><span class="line">git fetch upstream</span><br><span class="line"><span class="comment"># 更新本地 main（这里也可以用 rebase，但是 reset 不管有没有冲突总是会成功）</span></span><br><span class="line">git reset --hard upstream/main</span><br></pre></td></tr></table></figure>
+<p>然后我们要将 main 分支的代码合入自己的特性分支，同时解决冲突。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">git checkout feat-1</span><br><span class="line">git rebase main</span><br></pre></td></tr></table></figure>
+<h2 id="修改commit信息">7. 修改commit信息</h2>
+<p>用下面的命令可以修改commit信息</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git commit --amend</span><br></pre></td></tr></table></figure>
+<p>如果是在commit的时候忘记了<code>-s</code>参数，则可以使用下面的命令自动加上</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git commit --amend -s</span><br></pre></td></tr></table></figure>
+
+        </div>
+
+        
+            <section class="post-copyright">
+                
+                
+                
+                    <p class="copyright-item">
+                        <span>License:</span>
+                        <span>Copyright (c) 2023 <a target="_blank" rel="noopener" href="http://creativecommons.org/licenses/by-nc/4.0/">CC-BY-NC-4.0</a> LICENSE</span>
+                    </p>
+                
+                
+
+            </section>
+        
+        <section class="post-tags">
+            <div>
+                <span>Tag(s):</span>
+                <span class="tag">
+                    
+                    
+                        <a href="/tags/open-source/"># open source</a>
+                    
+                        
+                </span>
+            </div>
+            <div>
+                <a href="javascript:window.history.back();">back</a>
+                <span>· </span>
+                <a href="/">home</a>
+            </div>
+        </section>
+        <section class="post-nav">
+            
+            
+            <a class="next" rel="next" href="/2023/12/11/17/32/">三步走：如何阅读一篇文献</a>
+            
+        </section>
+
+
+    </article>
+</div>
+
+            </div>
+            <footer id="footer" class="footer">
+    <div class="copyright">
+        <span>© Gunther Xing | Powered by <a href="https://hexo.io" target="_blank">Hexo</a> & <a href="https://github.com/Siricee/hexo-theme-Chic" target="_blank">Chic</a></span>
+    </div>
+</footer>
+
+    </div>
+</body>
+
+</html>
