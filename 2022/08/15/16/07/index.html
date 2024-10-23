@@ -76,10 +76,18 @@
     </h1>
   </a>
   <nav><p>
-  <a href="/">Inicio</a>
+  <a href="/">Home</a>
   
     
     <a href="/archives">Posts</a>
+    
+  
+    
+    <a href="/atom.xml">RSS</a>
+    
+  
+    
+    <a href="/about">About</a>
     
   
     
@@ -87,11 +95,7 @@
     
   
     
-    <a target="_blank" rel="noopener" href="https://photo-bucket-chi.vercel.app/">Photo Bucket⎋</a>
-    
-  
-    
-    <a href="/atom.xml">RSS</a>
+    <a target="_blank" rel="noopener" href="https://photo-bucket-chi.vercel.app/">PhotoBucket⎋</a>
     
   
 </p></nav>
@@ -129,7 +133,7 @@ target="_blank" rel="noopener" href="http://www.cs.wustl.edu/~cdgill/courses/cs3
 href="#源代码">源代码</a>中的程序，它会打印一些信息，然后它会表示收到了一个段错误，接着程序就崩溃了。我们就要开始调试这个程序。</p>
 <h3 id="载入一个程序">载入一个程序</h3>
 <p>通过编译运行后，现在有了一个可执行文件（下面用<code>main</code>来表示）并且你需要去调试它。首先必须启动调试工具<code>gdb</code>，同时可以告诉它你需要调试哪个文件，比如输入<code>gdb main</code>执行的时候，它就会是下面这个样子
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">root@a852a26669ff:/bustub<span class="comment"># gdb main</span></span><br><span class="line">GNU gdb (Ubuntu 8.1.1-0ubuntu1) 8.1.1</span><br><span class="line">Copyright (C) 2018 Free Software Foundation, Inc.</span><br><span class="line">License GPLv3+: GNU GPL version 3 or later &lt;http://gnu.org/licenses/gpl.html&gt;</span><br><span class="line">This is free software: you are free to change and redistribute it.</span><br><span class="line">There is NO WARRANTY, to the extent permitted by law.  Type <span class="string">&quot;show copying&quot;</span></span><br><span class="line">and <span class="string">&quot;show warranty&quot;</span> <span class="keyword">for</span> details.</span><br><span class="line">This GDB was configured as <span class="string">&quot;aarch64-linux-gnu&quot;</span>.</span><br><span class="line">Type <span class="string">&quot;show configuration&quot;</span> <span class="keyword">for</span> configuration details.</span><br><span class="line">For bug reporting instructions, please see:</span><br><span class="line">&lt;http://www.gnu.org/software/gdb/bugs/&gt;.</span><br><span class="line">Find the GDB manual and other documentation resources online at:</span><br><span class="line">&lt;http://www.gnu.org/software/gdb/documentation/&gt;.</span><br><span class="line">For <span class="built_in">help</span>, <span class="built_in">type</span> <span class="string">&quot;help&quot;</span>.</span><br><span class="line">Type <span class="string">&quot;apropos word&quot;</span> to search <span class="keyword">for</span> commands related to <span class="string">&quot;word&quot;</span>...</span><br><span class="line">Reading symbols from main...done.</span><br><span class="line">(gdb)</span><br></pre></td></tr></table></figure></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">root@a852a26669ff:/bustub# gdb main</span><br><span class="line">GNU gdb (Ubuntu 8.1.1-0ubuntu1) 8.1.1</span><br><span class="line">Copyright (C) 2018 Free Software Foundation, Inc.</span><br><span class="line">License GPLv3+: GNU GPL version 3 or later &lt;http://gnu.org/licenses/gpl.html&gt;</span><br><span class="line">This is free software: you are free to change and redistribute it.</span><br><span class="line">There is NO WARRANTY, to the extent permitted by law.  Type <span class="string">&quot;show copying&quot;</span></span><br><span class="line">and <span class="string">&quot;show warranty&quot;</span> <span class="keyword">for</span> details.</span><br><span class="line">This GDB was configured as <span class="string">&quot;aarch64-linux-gnu&quot;</span>.</span><br><span class="line">Type <span class="string">&quot;show configuration&quot;</span> <span class="keyword">for</span> configuration details.</span><br><span class="line">For bug reporting instructions, please see:</span><br><span class="line">&lt;http://www.gnu.org/software/gdb/bugs/&gt;.</span><br><span class="line">Find the GDB manual and other documentation resources online at:</span><br><span class="line">&lt;http://www.gnu.org/software/gdb/documentation/&gt;.</span><br><span class="line">For <span class="built_in">help</span>, <span class="built_in">type</span> <span class="string">&quot;help&quot;</span>.</span><br><span class="line">Type <span class="string">&quot;apropos word&quot;</span> to search <span class="keyword">for</span> commands related to <span class="string">&quot;word&quot;</span>...</span><br><span class="line">Reading symbols from main...done.</span><br><span class="line">(gdb)</span><br></pre></td></tr></table></figure></p>
 <p><code>gdb</code>现在在等待用户的进一步输入，我们需要运行这个程序因此调试工具可以帮助我们了解程序崩溃的时候发生了什么，在<code>gdb</code>交互程序中输入<code>run</code>，会有如下的消息打出</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">(gdb) run</span><br><span class="line">Starting program: /bustub/main</span><br><span class="line">warning: Error disabling address space randomization: Operation not permitted</span><br><span class="line">Creating Node, 1 are in existence right now</span><br><span class="line">Creating Node, 2 are in existence right now</span><br><span class="line">Creating Node, 3 are in existence right now</span><br><span class="line">Creating Node, 4 are in existence right now</span><br><span class="line">The fully created list is:</span><br><span class="line">4</span><br><span class="line">3</span><br><span class="line">2</span><br><span class="line">1</span><br><span class="line"></span><br><span class="line">Now removing elements:</span><br><span class="line">Creating Node, 5 are in existence right now</span><br><span class="line">Destroying Node, 4 are in existence right now</span><br><span class="line">4</span><br><span class="line">3</span><br><span class="line">2</span><br><span class="line">1</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">Program received signal SIGSEGV, Segmentation fault.</span><br><span class="line">0x0000aaaac4c31304 in Node&lt;int&gt;::next (this=0x0) at main.cc:29</span><br><span class="line">29	  Node&lt;T&gt;* next () const &#123; return next_; &#125;</span><br></pre></td></tr></table></figure>
 <p>程序崩溃了，我们来看看发生了什么</p>
@@ -155,7 +159,7 @@ href="#源代码">源代码</a>中的程序，它会打印一些信息，然后�
 target="_blank" rel="noopener" href="https://sourceware.org/gdb/current/onlinedocs/gdb/">一个非常长的说明</a>。也可以通过在运行<code>gdb</code>的时候输入<code>help</code>来获取在线的帮助。</p>
 
   <p class="center">
-    <a href="#title"><span alt="Volver al inicio"></span><span>⬆</span></a>
+    <a href="#title"><span alt="Jump to top"></span><span>⬆</span></a>
     <a class="classtest-link" href="/tags/debugging/" rel="tag">#debugging</a>, <a class="classtest-link" href="/tags/tools/" rel="tag">#tools</a>
   </p>
   
