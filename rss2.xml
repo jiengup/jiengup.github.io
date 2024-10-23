@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>GuntherX&#39;s</title>
-  <icon>https://jiengup.github.io/J_Drive.ico</icon>
+  <icon>https://jiengup.github.io/favicon.png</icon>
   <subtitle>A tiny blog.</subtitle>
   <link href="https://jiengup.github.io/rss2.xml" rel="self"/>
   
