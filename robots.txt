@@ -1,0 +1,17 @@
+User-agent: GPTBot
+disallow: /
+
+User-agent: ChatGPT-User
+Disallow: /
+
+User-agent: CCBot
+Disallow: /
+
+User-agent: Google-Extended
+disallow: /
+
+User-agent: googlebot-image
+Disallow: /
+
+User-agent: *
+Allow: /

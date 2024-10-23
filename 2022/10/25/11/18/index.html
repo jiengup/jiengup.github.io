@@ -2,267 +2,110 @@
 <html lang="">
 
 <head>
-    <meta charset="UTF-8">
-<meta name="viewport"
-      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
-<meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <!-- Basic Page Needs
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <meta charset="utf-8">
+  
+    <meta http-equiv="X-Clacks-Overhead" content="GNU Terry Pratchett">
+  
 
-    <meta name="author" content="Gunther Xing">
+  
+  <title>【文献精读】Towards Accurate Prediction for High-Dimensional and Highly-Variable Cloud Workloads with Deep Learning - GuntherX&#39;s</title>
 
-
-    <meta name="subtitle" content="A blog site belong to Gunther Xing">
-
-
-
-
-<title>【文献精读】Towards Accurate Prediction for High-Dimensional and Highly-Variable Cloud Workloads with Deep Learning | Gunther&#39;s Blog</title>
+  
 
 
+<link rel="canonical" href="https://jiengup.github.io/2022/10/25/11/18/">
 
-    <link rel="icon" href="/J_Drive.ico">
+<meta name="description" content="基于深度学习方法的多维易变云服务负载的精准预测 摘要 适应性强以及精准的云服务负载的预测对于云计算的资源分配是非常必要的。然而，现有的方法并不能够有效的预测多维度的、不稳定的云服务负载，这往往导致了云服务资源的浪费以及违背对于用户的服务水平协议（SLAs）。循环神经网络（RNN）往往对于序列数据的分...">
 
 
 
-
-    <!-- stylesheets list from _config.yml -->
-    
-    <link rel="stylesheet" href="/css/style.css">
-    
+<meta name="author" content="Gunther Xing">
 
 
-
-    <!-- scripts list from _config.yml -->
-    
-    <script src="/js/script.js"></script>
-    
-    <script src="/js/tocbot.min.js"></script>
-    
+  
 
 
+<meta property="og:site_name" content="GuntherX&#39;s">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【文献精读】Towards Accurate Prediction for High-Dimensional and Highly-Variable Cloud Workloads with Deep Learning - GuntherX&#39;s">
 
-    
-    
-        <!-- MathJax配置，可通过单美元符号书写行内公式等 -->
-<script type="text/x-mathjax-config">
-    MathJax.Hub.Config({
-    "HTML-CSS": {
-        preferredFont: "TeX",
-        availableFonts: ["STIX","TeX"],
-        linebreaks: { automatic:true },
-        EqnChunk: (MathJax.Hub.Browser.isMobile ? 10 : 50)
-    },
-    tex2jax: {
-        inlineMath: [ ["$", "$"], ["\\(","\\)"] ],
-        processEscapes: true,
-        ignoreClass: "tex2jax_ignore|dno",
-        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
-    },
-    TeX: {
-        equationNumbers: { autoNumber: "AMS" },
-        noUndefined: { attributes: { mathcolor: "red", mathbackground: "#FFEEEE", mathsize: "90%" } },
-        Macros: { href: "{}" }
-    },
-    messageStyle: "none"
-    });
-</script>
-<!-- 给MathJax元素添加has-jax class -->
-<script type="text/x-mathjax-config">
-    MathJax.Hub.Queue(function() {
-        var all = MathJax.Hub.getAllJax(), i;
-        for(i=0; i < all.length; i += 1) {
-            all[i].SourceElement().parentNode.className += ' has-jax';
-        }
-    });
-</script>
-<!-- 通过连接CDN加载MathJax的js代码 -->
-<script type="text/javascript" async
-        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML">
-</script>
+<meta property="og:description" content="基于深度学习方法的多维易变云服务负载的精准预测 摘要 适应性强以及精准的云服务负载的预测对于云计算的资源分配是非常必要的。然而，现有的方法并不能够有效的预测多维度的、不稳定的云服务负载，这往往导致了云服务资源的浪费以及违背对于用户的服务水平协议（SLAs）。循环神经网络（RNN）往往对于序列数据的分...">
+
+<meta property="og:url" content="https://jiengup.github.io/2022/10/25/11/18/">
 
 
-    
+<meta name="fediverse:creator" content="@axxxx@mastodon.social" />
 
 
-<meta name="generator" content="Hexo 6.2.0"></head>
+<meta name="robots" content="noai, noimageai">
+
+
+  <!-- Mobile Specific Metas
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- CSS
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  
+<link rel="stylesheet" href="/css/bear.css">
+
+
+  <!-- Favicon
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <link rel="shortcut icon" type="image/png" href="//images/thumbnail.png">
+    <link rel="apple-touch-icon" type="image/png" href="//images/thumbnail.png" />
+  
+  <!-- Custom Theme Color Style
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+
+<meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/atom.xml" title="GuntherX's" type="application/atom+xml">
+<link rel="alternate" href="/rss2.xml" title="GuntherX's" type="application/rss+xml">
+</head>
 
 <body>
-    <script>
-        // this function is used to check current theme before page loaded.
-        (() => {
-            const currentTheme = window.localStorage && window.localStorage.getItem('theme') || '';
-            const isDark = currentTheme === 'dark';
-            const pagebody = document.getElementsByTagName('body')[0]
-            if (isDark) {
-                pagebody.classList.add('dark-theme');
-                // mobile
-                document.getElementById("mobile-toggle-theme").innerText = "· Dark"
-            } else {
-                pagebody.classList.remove('dark-theme');
-                // mobile
-                document.getElementById("mobile-toggle-theme").innerText = "· Light"
-            }
-        })();
-    </script>
-
-    <div class="wrapper">
-        <header>
-    <nav class="navbar">
-        <div class="container">
-            <div class="navbar-header header-logo"><a href="/">Gunther&#39;s Blog</a></div>
-            <div class="menu navbar-right">
-                
-                    <a class="menu-item" href="/archives">Posts</a>
-                
-                    <a class="menu-item" href="/category">Categories</a>
-                
-                    <a class="menu-item" href="/tag">Tags</a>
-                
-                    <a class="menu-item" target="_blank" rel="noopener" href="https://reason-for-live.pages.dev/">Reason For Live</a>
-                
-                    <a class="menu-item" target="_blank" rel="noopener" href="https://photo-bucket-chi.vercel.app/">Photo Bucket</a>
-                
-                <input id="switch_default" type="checkbox" class="switch_default">
-                <label for="switch_default" class="toggleBtn"></label>
-            </div>
-        </div>
-    </nav>
-
+  <header class="header">
+  <a href="/" class="title" id="title">
+    <h1>
+            
+      GuntherX&#39;s
+       
+    </h1>
+  </a>
+  <nav><p>
+  <a href="/">Inicio</a>
+  
     
-    <nav class="navbar-mobile" id="nav-mobile">
-        <div class="container">
-            <div class="navbar-header">
-                <div>
-                    <a href="/">Gunther&#39;s Blog</a><a id="mobile-toggle-theme">·&nbsp;Light</a>
-                </div>
-                <div class="menu-toggle" onclick="mobileBtn()">&#9776; Menu</div>
-            </div>
-            <div class="menu" id="mobile-menu">
-                
-                    <a class="menu-item" href="/archives">Posts</a>
-                
-                    <a class="menu-item" href="/category">Categories</a>
-                
-                    <a class="menu-item" href="/tag">Tags</a>
-                
-                    <a class="menu-item" target="_blank" rel="noopener" href="https://reason-for-live.pages.dev/">Reason For Live</a>
-                
-                    <a class="menu-item" target="_blank" rel="noopener" href="https://photo-bucket-chi.vercel.app/">Photo Bucket</a>
-                
-            </div>
-        </div>
-    </nav>
+    <a href="/archives">Posts</a>
+    
+  
+    
+    <a target="_blank" rel="noopener" href="https://reasons-for-living.guntherx-space.vercel.app/">KnowBase⎋</a>
+    
+  
+    
+    <a target="_blank" rel="noopener" href="https://photo-bucket-chi.vercel.app/">Photo Bucket⎋</a>
+    
+  
+    
+    <a href="/atom.xml">RSS</a>
+    
+  
+</p></nav>
 
+  <hr class="margin-bottom">
 </header>
-<script>
-    var mobileBtn = function f() {
-        var toggleMenu = document.getElementsByClassName("menu-toggle")[0];
-        var mobileMenu = document.getElementById("mobile-menu");
-        if(toggleMenu.classList.contains("active")){
-           toggleMenu.classList.remove("active")
-            mobileMenu.classList.remove("active")
-        }else{
-            toggleMenu.classList.add("active")
-            mobileMenu.classList.add("active")
-        }
-    }
-</script>
-            <div class="main">
-                <div class="container">
-    
-    
-        <div class="post-toc">
-    <div class="tocbot-list">
-    </div>
-    <div class="tocbot-list-menu">
-        <a class="tocbot-toc-expand" onclick="expand_toc()">Expand all</a>
-        <a onclick="go_top()">Back to top</a>
-        <a onclick="go_bottom()">Go to bottom</a>
-    </div>
-</div>
+  <main>
+      <h1>【文献精读】Towards Accurate Prediction for High-Dimensional and Highly-Variable Cloud Workloads with Deep Learning</h1>
 
-<script>
-    var tocbot_timer;
-    var DEPTH_MAX = 6; // 为 6 时展开所有
-    var tocbot_default_config = {
-        tocSelector: '.tocbot-list',
-        contentSelector: '.post-content',
-        headingSelector: 'h1, h2, h3, h4, h5',
-        orderedList: false,
-        scrollSmooth: true,
-        onClick: extend_click,
-    };
-
-    function extend_click() {
-        clearTimeout(tocbot_timer);
-        tocbot_timer = setTimeout(function() {
-            tocbot.refresh(obj_merge(tocbot_default_config, {
-                hasInnerContainers: true
-            }));
-        }, 420); // 这个值是由 tocbot 源码里定义的 scrollSmoothDuration 得来的
-    }
-
-    document.ready(function() {
-        tocbot.init(obj_merge(tocbot_default_config, {
-            collapseDepth: 1
-        }));
-    });
-
-    function expand_toc() {
-        var b = document.querySelector('.tocbot-toc-expand');
-        var expanded = b.getAttribute('data-expanded');
-        expanded ? b.removeAttribute('data-expanded') : b.setAttribute('data-expanded', true);
-        tocbot.refresh(obj_merge(tocbot_default_config, {
-            collapseDepth: expanded ? 1 : DEPTH_MAX
-        }));
-        b.innerText = expanded ? 'Expand all' : 'Collapse all';
-    }
-
-    function go_top() {
-        window.scrollTo(0, 0);
-    }
-
-    function go_bottom() {
-        window.scrollTo(0, document.body.scrollHeight);
-    }
-
-    function obj_merge(target, source) {
-        for (var item in source) {
-            if (source.hasOwnProperty(item)) {
-                target[item] = source[item];
-            }
-        }
-        return target;
-    }
-</script>
-    
-
-    
-    <article class="post-wrap">
-        <header class="post-header">
-            <h1 class="post-title">【文献精读】Towards Accurate Prediction for High-Dimensional and Highly-Variable Cloud Workloads with Deep Learning</h1>
-            
-                <div class="post-meta">
-                    
-
-                    
-                        <span class="post-time">
-                        Date: <a href="#">October 25, 2022&nbsp;&nbsp;11:18:36</a>
-                        </span>
-                    
-                    
-                        <span class="post-category">
-                    Category:
-                            
-                                <a href="/categories/Research/">Research</a>
-                            
-                        </span>
-                    
-                </div>
-            
-        </header>
-
-        <div class="post-content">
-            <h1
+  <p>
+    <i>Oct 25, 2022</i> -
+    <a class="classtest-link" href="/categories/Research/">#Research</a>
+  </p>
+  <h1
 id="基于深度学习方法的多维易变云服务负载的精准预测">基于深度学习方法的多维易变云服务负载的精准预测</h1>
 <h2 id="摘要">摘要</h2>
 <p>适应性强以及精准的云服务负载的预测对于云计算的资源分配是非常必要的。然而，现有的方法并不能够有效的预测多维度的、不稳定的云服务负载，这往往导致了云服务资源的浪费以及违背对于用户的服务水平协议（SLAs）。循环神经网络（RNN）往往对于序列数据的分析非常有效，因此它近期被应用于解决负载预测问题。然而，RNN在学习长期依赖的表现十分不足，从而不能对于负载进行精确的预测。为了解决这个关键的问题，我们提出了一种基于深度学习的方法Prediction
@@ -467,62 +310,23 @@ class="math inline">\(k=128\)</span>）并且在接下来的实验中一直保�
 <h2 id="结论">7. 结论</h2>
 <p>适应性的和有效的负载预测对于有效的资源分配来说是必要的。然而，负载预测并没有很好的解决高变化和高维度的负载数据带来的挑战。在这篇文章中，我们首先设计了一个top稀疏自编码器（TSA）来有效的从原始的高维数据中抽取必要特征表达。接着，集成了TSA和GRU块的L-PAW算法被提出以达到适应性强、准确性高的负载预测。我们进行的实验使用了谷歌公司和阿里巴巴公司云数据中心以及基于DUX的集群的真实生产环境下的负载数据集，表明在高自相关的、高周期性的以及高度随机的数据中，L-PAW可以达到MSE约束的高预测准确性。并且，随着预测长度的增加，预测误差仅仅只有很小的增大，这同样也表明了L-PAW的强大能力。同时，L-PAW也比经典的RNN、LSTM、GRU以及ESN在负载预测上对于MSE的提升表现的要好，同时还达到了非常高的学习效率。另外，随着预测长度的提升，L-PAW相对于其他方法达到了更大的预测准确性的提升，这意味着L-PAW有着在云负载预测问题中解决长效依赖问题的能力。机遇准确的、高效的云负载预测，我们未来的工作是要为资源分配去探索一个适应性强的、机遇深度强化学习的策略，以应对负载的、高动态的云计算环境。</p>
 
-        </div>
-
-        
-            <section class="post-copyright">
-                
-                
-                
-                    <p class="copyright-item">
-                        <span>License:</span>
-                        <span>Copyright (c) 2023 <a target="_blank" rel="noopener" href="http://creativecommons.org/licenses/by-nc/4.0/">CC-BY-NC-4.0</a> LICENSE</span>
-                    </p>
-                
-                
-
-            </section>
-        
-        <section class="post-tags">
-            <div>
-                <span>Tag(s):</span>
-                <span class="tag">
-                    
-                    
-                        <a href="/tags/workload-prediction/"># workload prediction</a>
-                    
-                        <a href="/tags/deep-learning/"># deep learning</a>
-                    
-                        
-                </span>
-            </div>
-            <div>
-                <a href="javascript:window.history.back();">back</a>
-                <span>· </span>
-                <a href="/">home</a>
-            </div>
-        </section>
-        <section class="post-nav">
-            
-                <a class="prev" rel="prev" href="/2022/11/02/20/21/">【文献精读】Sinan: ML-Based and QoS-Aware Resource Management for Cloud Microservices</a>
-            
-            
-            <a class="next" rel="next" href="/2022/08/15/16/07/">gdb调试指南</a>
-            
-        </section>
+  <p class="center">
+    <a href="#title"><span alt="Volver al inicio"></span><span>⬆</span></a>
+    <a class="classtest-link" href="/tags/deep-learning/" rel="tag">#deep learning</a>, <a class="classtest-link" href="/tags/workload-prediction/" rel="tag">#workload prediction</a>
+  </p>
+  
 
 
-    </article>
-</div>
-
-            </div>
-            <footer id="footer" class="footer">
-    <div class="copyright">
-        <span>© Gunther Xing | Powered by <a href="https://hexo.io" target="_blank">Hexo</a> & <a href="https://github.com/Siricee/hexo-theme-Chic" target="_blank">Chic</a></span>
-    </div>
+  </main>
+  
+  <footer class="footer">
+  
+    <p id="copyright">
+      All rights reserved - <span>2024</span>  Gunther Xing
+    </p>
+  
 </footer>
 
-    </div>
 </body>
 
 </html>

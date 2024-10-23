@@ -2,224 +2,193 @@
 <html lang="">
 
 <head>
-    <meta charset="UTF-8">
-<meta name="viewport"
-      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
-<meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <!-- Basic Page Needs
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <meta charset="utf-8">
+  
+    <meta http-equiv="X-Clacks-Overhead" content="GNU Terry Pratchett">
+  
 
-    <meta name="author" content="Gunther Xing">
+  
+  <title>GuntherX&#39;s</title>
 
-
-    <meta name="subtitle" content="A blog site belong to Gunther Xing">
-
-
-
-
-<title>Gunther&#39;s Blog</title>
+  
 
 
+<link rel="canonical" href="https://jiengup.github.io/page/2/">
 
-    <link rel="icon" href="/J_Drive.ico">
+<meta name="description" content="This is a tiny blog about my experiences and thoughts.">
 
 
 
-
-    <!-- stylesheets list from _config.yml -->
-    
-    <link rel="stylesheet" href="/css/style.css">
-    
+<meta name="author" content="Gunther Xing">
 
 
-
-    <!-- scripts list from _config.yml -->
-    
-    <script src="/js/script.js"></script>
-    
-    <script src="/js/tocbot.min.js"></script>
-    
+  
+<meta property="og:image" content="https://jiengup.github.io//images/thumbnail.png">
+  
 
 
+<meta property="og:site_name" content="GuntherX&#39;s">
+<meta property="og:type" content="article">
+<meta property="og:title" content="GuntherX&#39;s">
 
-    
-    
-        <!-- MathJax配置，可通过单美元符号书写行内公式等 -->
-<script type="text/x-mathjax-config">
-    MathJax.Hub.Config({
-    "HTML-CSS": {
-        preferredFont: "TeX",
-        availableFonts: ["STIX","TeX"],
-        linebreaks: { automatic:true },
-        EqnChunk: (MathJax.Hub.Browser.isMobile ? 10 : 50)
-    },
-    tex2jax: {
-        inlineMath: [ ["$", "$"], ["\\(","\\)"] ],
-        processEscapes: true,
-        ignoreClass: "tex2jax_ignore|dno",
-        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
-    },
-    TeX: {
-        equationNumbers: { autoNumber: "AMS" },
-        noUndefined: { attributes: { mathcolor: "red", mathbackground: "#FFEEEE", mathsize: "90%" } },
-        Macros: { href: "{}" }
-    },
-    messageStyle: "none"
-    });
-</script>
-<!-- 给MathJax元素添加has-jax class -->
-<script type="text/x-mathjax-config">
-    MathJax.Hub.Queue(function() {
-        var all = MathJax.Hub.getAllJax(), i;
-        for(i=0; i < all.length; i += 1) {
-            all[i].SourceElement().parentNode.className += ' has-jax';
-        }
-    });
-</script>
-<!-- 通过连接CDN加载MathJax的js代码 -->
-<script type="text/javascript" async
-        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML">
-</script>
+<meta property="og:description" content="This is a tiny blog about my experiences and thoughts.">
+
+<meta property="og:url" content="https://jiengup.github.io/page/2/">
 
 
-    
+<meta name="fediverse:creator" content="@axxxx@mastodon.social" />
 
 
-<meta name="generator" content="Hexo 6.2.0"></head>
+<meta name="robots" content="noai, noimageai">
+
+
+  <!-- Mobile Specific Metas
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- CSS
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  
+<link rel="stylesheet" href="/css/bear.css">
+
+
+  <!-- Favicon
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <link rel="shortcut icon" type="image/png" href="//images/thumbnail.png">
+    <link rel="apple-touch-icon" type="image/png" href="//images/thumbnail.png" />
+  
+  <!-- Custom Theme Color Style
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+
+<meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/atom.xml" title="GuntherX's" type="application/atom+xml">
+<link rel="alternate" href="/rss2.xml" title="GuntherX's" type="application/rss+xml">
+</head>
 
 <body>
-    <script>
-        // this function is used to check current theme before page loaded.
-        (() => {
-            const currentTheme = window.localStorage && window.localStorage.getItem('theme') || '';
-            const isDark = currentTheme === 'dark';
-            const pagebody = document.getElementsByTagName('body')[0]
-            if (isDark) {
-                pagebody.classList.add('dark-theme');
-                // mobile
-                document.getElementById("mobile-toggle-theme").innerText = "· Dark"
-            } else {
-                pagebody.classList.remove('dark-theme');
-                // mobile
-                document.getElementById("mobile-toggle-theme").innerText = "· Light"
-            }
-        })();
-    </script>
-
-    <div class="wrapper">
-        <header>
-    <nav class="navbar">
-        <div class="container">
-            <div class="navbar-header header-logo"><a href="/">Gunther&#39;s Blog</a></div>
-            <div class="menu navbar-right">
-                
-                    <a class="menu-item" href="/archives">Posts</a>
-                
-                    <a class="menu-item" href="/category">Categories</a>
-                
-                    <a class="menu-item" href="/tag">Tags</a>
-                
-                    <a class="menu-item" target="_blank" rel="noopener" href="https://reason-for-live.pages.dev/">Reason For Live</a>
-                
-                    <a class="menu-item" target="_blank" rel="noopener" href="https://photo-bucket-chi.vercel.app/">Photo Bucket</a>
-                
-                <input id="switch_default" type="checkbox" class="switch_default">
-                <label for="switch_default" class="toggleBtn"></label>
-            </div>
-        </div>
-    </nav>
-
+  <header class="header">
+  <a href="/" class="title" id="title">
+    <h1>
+            
+      GuntherX&#39;s
+       
+    </h1>
+  </a>
+  <nav><p>
+  <a href="/">Inicio</a>
+  
     
-    <nav class="navbar-mobile" id="nav-mobile">
-        <div class="container">
-            <div class="navbar-header">
-                <div>
-                    <a href="/">Gunther&#39;s Blog</a><a id="mobile-toggle-theme">·&nbsp;Light</a>
-                </div>
-                <div class="menu-toggle" onclick="mobileBtn()">&#9776; Menu</div>
-            </div>
-            <div class="menu" id="mobile-menu">
-                
-                    <a class="menu-item" href="/archives">Posts</a>
-                
-                    <a class="menu-item" href="/category">Categories</a>
-                
-                    <a class="menu-item" href="/tag">Tags</a>
-                
-                    <a class="menu-item" target="_blank" rel="noopener" href="https://reason-for-live.pages.dev/">Reason For Live</a>
-                
-                    <a class="menu-item" target="_blank" rel="noopener" href="https://photo-bucket-chi.vercel.app/">Photo Bucket</a>
-                
-            </div>
-        </div>
-    </nav>
+    <a href="/archives">Posts</a>
+    
+  
+    
+    <a target="_blank" rel="noopener" href="https://reasons-for-living.guntherx-space.vercel.app/">KnowBase⎋</a>
+    
+  
+    
+    <a target="_blank" rel="noopener" href="https://photo-bucket-chi.vercel.app/">Photo Bucket⎋</a>
+    
+  
+    
+    <a href="/atom.xml">RSS</a>
+    
+  
+</p></nav>
 
+  <hr class="margin-bottom">
 </header>
-<script>
-    var mobileBtn = function f() {
-        var toggleMenu = document.getElementsByClassName("menu-toggle")[0];
-        var mobileMenu = document.getElementById("mobile-menu");
-        if(toggleMenu.classList.contains("active")){
-           toggleMenu.classList.remove("active")
-            mobileMenu.classList.remove("active")
-        }else{
-            toggleMenu.classList.add("active")
-            mobileMenu.classList.add("active")
-        }
-    }
-</script>
-            <div class="main">
-                
-    <div class="container profile-container">
-    <div class="intro">
-        <div class="avatar">
-            <a href="/archives"><img src="/image/avatar2.JPG"></a>
-        </div>
-        <div class="nickname">Gunther Xing</div>
-        <div class="description"><p>👋 Hi, call me <em>Gunther</em>. <br> A second-year master's student
-majoring <em>Computer Architecture</em> at 🎓<a
-target="_blank" rel="noopener" href="https://www.hust.edu.cn">HUST</a>. <br> 🔬 Interested in
-<em>[Machine Learning System]</em>, <em>[Intelligent Distributed
-Storage]</em>, <em>[Resource Scheduling]</em> <br> Feel 🚲 free to
-READ/EXPLORE and <strong><a
-href="mailto:jiengup@gmail.com">CONTACT</a></strong> with me ~</p>
-</div>
-        <div class="links">
-            
-                
-                    <a class="link-item" title="Blog" href="/archives">
-                        
-                        
-                            <i class="iconfont icon-blog"></i>
-                        
-                    </a>
-                
-                    <a class="link-item" title="WeChat" target="_blank" rel="noopener" href="https://github.com/jiengup/jiengup/issues/1">
-                        
-                        
-                            <i class="iconfont icon-wechat"></i>
-                        
-                    </a>
-                
-                    <a class="link-item" title="Github" target="_blank" rel="noopener" href="https://github.com/jiengup">
-                        
-                        
-                            <i class="iconfont icon-github"></i>
-                        
-                    </a>
-                
-            
-        </div>
-    </div>
+  <main>
+    <div>
+  <!-- Main information, edit it on theme/_config.yml -->
+  <h1 id="owner">👋🏻 Welcome!</h1>
+  <p>This is a tiny blog, sharing my experiences with the world and my thoughts about technology.</p>
+  <p>I&#39;m interested in the following topics:</p>
+  </ul>
+    
+      <li><i>Computer System Design</i></li>
+    
+      <li><i>Low-level Programming</i></li>
+    
+      <li><i>Productivity Workflow</i></li>
+    
+      <li><i>Photography</i></li>
+    
+      <li><i>Video Games</i></li>
+    
+  </ul>
+  <div class="social">
+  <!-- Special thanks to https://simpleicons.org/ for the icons -->
+  <span>
+    
+      
+        <a class="social-link icon" href="mailto:jiengup@gmail.com" target="_blank" style="text-decoration: none" rel="noreferrer noopener" aria-label="Email">
+          <svg class="email svg-hov" width="18" height="auto" role = img viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><title>Email</title><path d="m15.24 8.998 3.656-3.073v15.81H2.482C1.11 21.735 0 20.609 0 19.223V6.944l7.58 6.38a2.186 2.186 0 0 0 2.871-.042l4.792-4.284h-.003zm-5.456 3.538 1.809-1.616a2.438 2.438 0 0 1-1.178-.533L.905 2.395A.552.552 0 0 0 0 2.826v2.811l8.226 6.923a1.186 1.186 0 0 0 1.558-.024zM23.871 2.463a.551.551 0 0 0-.776-.068l-3.199 2.688v16.653h1.623c1.371 0 2.481-1.127 2.481-2.513V2.824a.551.551 0 0 0-.129-.36z"/></svg>
+        </a>
+      
+    
+    
+    
+  </span>
 </div>
 
+  <p>All the posts are written in English and you can find a LLM-translate version at the header of each post.</p>
+</div>
 
-            </div>
-            <footer id="footer" class="footer">
-    <div class="copyright">
-        <span>© Gunther Xing | Powered by <a href="https://hexo.io" target="_blank">Hexo</a> & <a href="https://github.com/Siricee/hexo-theme-Chic" target="_blank">Chic</a></span>
-    </div>
+<h2>Artículos recientes</h2>
+
+<ul class="blog-posts">
+
+<li>
+  <span><i>2023/12/11</i></span>
+  <a href="/2023/12/11/17/37/" >
+    
+      如何给开源项目做贡献
+    
+  </a>
+</li>
+
+<li>
+  <span><i>2023/12/11</i></span>
+  <a href="/2023/12/11/17/32/" >
+    
+      三步走：如何阅读一篇文献
+    
+  </a>
+</li>
+
+<li>
+  <span><i>2023/06/08</i></span>
+  <a href="/2023/06/08/19/43/" >
+    
+      【文献精读】FIRM: An Intelligent Fine-Grained Resource Management Framework for SLO-Oriented Microservices 微服务下基于关键节点提取和强化学习的的细粒度资源管理框架
+    
+  </a>
+</li>
+
+<li>
+  <span><i>2023/04/14</i></span>
+  <a href="/2023/04/14/19/10/" >
+    
+      【文献精读】The Power of Prediction: Microservice Auto Scaling via Workload Learning 微服务下的负载预测及资源分配
+    
+  </a>
+</li>
+
+</ul>
+
+  </main>
+  
+  <footer class="footer">
+  
+    <p id="copyright">
+      All rights reserved - <span>2024</span>  Gunther Xing
+    </p>
+  
 </footer>
 
-    </div>
 </body>
 
 </html>
