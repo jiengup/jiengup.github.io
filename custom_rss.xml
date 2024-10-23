@@ -18,6 +18,7 @@
   {% for post in posts.toArray() %}
   <entry>
     <title>{{ post.title }}</title>
+    <small>Please use Reader View or go to the original webpage for better image display.</small>
     <link href="{{ post.permalink | uriencode }}"/>
     <id>{{ post.permalink | uriencode }}</id>
     <published>{{ post.date.toISOString() }}</published>
