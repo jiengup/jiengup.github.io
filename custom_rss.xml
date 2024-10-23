@@ -18,12 +18,12 @@
   {% for post in posts.toArray() %}
   <entry>
     <title>{{ post.title }}</title>
-    <small>Please use Reader View or go to the original webpage for better image display.</small>
     <link href="{{ post.permalink | uriencode }}"/>
     <id>{{ post.permalink | uriencode }}</id>
     <published>{{ post.date.toISOString() }}</published>
     <updated>{% if post.updated %}{{ post.updated.toISOString() }}{% else %}{{ post.date.toISOString() }}{% endif %}</updated>
     {% if config.feed.content and post.content %}
+    <content type="html">Please use Reader View or go to the original webpage for better image display.</content>
     <content type="html"><![CDATA[{{ post.content | noControlChars | safe }}]]></content>
     {% endif %}
     {% if post.description %}
