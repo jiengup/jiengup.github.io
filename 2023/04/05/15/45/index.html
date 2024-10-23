@@ -10,7 +10,7 @@
   
 
   
-  <title>【文献精读】Characterizing Microservice Dependency and Performance, 阿里巴巴微服务trace分析 - GuntherX&#39;s</title>
+  <title>【文献精读】Characterizing-Microservice-Dependency-and-Performance-阿里巴巴微服务trace分析 - GuntherX&#39;s</title>
 
   
 
@@ -29,7 +29,7 @@
 
 <meta property="og:site_name" content="GuntherX&#39;s">
 <meta property="og:type" content="article">
-<meta property="og:title" content="【文献精读】Characterizing Microservice Dependency and Performance, 阿里巴巴微服务trace分析 - GuntherX&#39;s">
+<meta property="og:title" content="【文献精读】Characterizing-Microservice-Dependency-and-Performance-阿里巴巴微服务trace分析 - GuntherX&#39;s">
 
 <meta property="og:description" content="Metadata  Authors: Shutian Luo, Huanle Xu, Chengzhi Lu, Kejiang Ye, Guoyao Xu, Liping Zhang, Yu Ding, Jian He, Chengzhong Xu Series: SoCC &#39;21 Cite Key...">
 
@@ -89,7 +89,7 @@
     
   
     
-    <a target="_blank" rel="noopener" href="https://reasons-for-living.guntherx-space.vercel.app/">KnowBase⎋</a>
+    <a target="_blank" rel="noopener" href="https://reason-for-live.pages.dev/">KnowBase⎋</a>
     
   
     
@@ -101,7 +101,7 @@
   <hr class="margin-bottom">
 </header>
   <main>
-      <h1>【文献精读】Characterizing Microservice Dependency and Performance, 阿里巴巴微服务trace分析</h1>
+      <h1>【文献精读】Characterizing-Microservice-Dependency-and-Performance-阿里巴巴微服务trace分析</h1>
 
   <p>
     <i>Apr 5, 2023</i> -
@@ -153,20 +153,22 @@ those graph properties observed from Alibaba traces.## Annotations</p>
 <h4 id="调用图">2.1 调用图</h4>
 <p><img
 src="https://cdn.jsdelivr.net/gh/jiengup/ImageBed@main/picgo202304041941287.png" /></p>
-<p>微服务可以被分成两类： -
-Stateful：例如Memcached和databases，通常提供读写数据的接口 -
-Stateless：提供不同目的的各种接口 微服务之间会有三种类型的通信方式： -
-远程调用（RPCs）：无向边，发送RPC请求的服务通常需要等待回应（同步方式）
--
-消息队列（MQ）：有向边，发送方会将消息发送给一个第三方做持久化，接收方则会从第三方获取消息，并且不会返回Response（异步方式）
--
-进程间通信（IP）：经常发生在同一个节点的stateless和stateful的服务之间</p>
+<p>微服务可以被分成两类：</p>
+<ul>
+<li>Stateful：例如Memcached和databases，通常提供读写数据的接口</li>
+<li>Stateless：提供不同目的的各种接口
+微服务之间会有三种类型的通信方式：</li>
+<li>远程调用（RPCs）：无向边，发送RPC请求的服务通常需要等待回应（同步方式）</li>
+<li>消息队列（MQ）：有向边，发送方会将消息发送给一个第三方做持久化，接收方则会从第三方获取消息，并且不会返回Response（异步方式）</li>
+<li>进程间通信（IP）：经常发生在同一个节点的stateless和stateful的服务之间</li>
+</ul>
 <p><em>通过MQ通常可以将微服务图划分为若干个部分，每个部分又可以划分为若干个<strong>两层调用（two-tier
 invocations）</strong>，调用方称为（Upstream Microservice,
 UM），被调用方（Downstream Microservice，DM）</em></p>
 <h4 id="图学习算法图聚类">2.2 图学习算法（图聚类）</h4>
 <p>[[InfoGraph]]是一种非监督学习的方法，将节点信息（微服务类型）以及边特征（通信框架）作为深度神经网络的输入训练，以最大化训练集中的互信息，以此可以为每一个图生成一个embedded向量。再利用生成的向量利用K-means算法完成聚类，使用Silhouette
-score度量k值的优劣。 <img
+score度量k值的优劣。</p>
+<p><img
 src="https://cdn.jsdelivr.net/gh/jiengup/ImageBed@main/picgo202304051435418.png" /></p>
 <h3 id="调用图剖析">3. 调用图剖析</h3>
 <h4 id="微服务调用图的大小遵循重尾分布如burr-distribution">3.1
@@ -188,22 +190,30 @@ size的调用图中，有50%的微服务是Memcacheds</li>
 <h4
 id="微服务调用图的结构更类似一个树并且其中很多都有一个较长的调用链">3.1
 微服务调用图的结构更类似一个树，并且其中很多都有一个较长的调用链</h4>
-<p><img
+<figure>
+<img
 src="https://cdn.jsdelivr.net/gh/jiengup/ImageBed@main/picgo202304042034612.png"
-alt="image.png" /> - 大多数微服务仅仅只有一个出度（只有一个UM） -
-有99%的微服务的出度不超过3，入度符合一个重尾分布 -
-大量的层（tire）只有一个服务，因此，很多比较深的调用图可以被表示为一个长链，<strong>对于这些图来说，找到微服务中的瓶颈是相对来说比较容易的</strong>
-- 有很多的stateless的服务是热点，聚合调用（agregate
-calls）统计显示有超过5%的服务出现在了90%的调用图中并且处理了95%的任务</p>
+alt="image.png" />
+<figcaption aria-hidden="true">image.png</figcaption>
+</figure>
+<ul>
+<li>大多数微服务仅仅只有一个出度（只有一个UM）</li>
+<li>有99%的微服务的出度不超过3，入度符合一个重尾分布</li>
+<li>大量的层（tire）只有一个服务，因此，很多比较深的调用图可以被表示为一个长链，<strong>对于这些图来说，找到微服务中的瓶颈是相对来说比较容易的</strong></li>
+<li>有很多的stateless的服务是热点，聚合调用（agregate
+calls）统计显示有超过5%的服务出现在了90%的调用图中并且处理了95%的任务</li>
+</ul>
 <h4 id="微服务调用图是高度动态的">3.2 微服务调用图是高度动态的</h4>
 <p>每当一个用户请求到达Entering
 Microservice，接下来的调用路径会变得非常复杂，因为这还要取决于用户的状态（例如在为用户排序商品的时候，用户是否有优惠卷会影响排序的调用路径），这更加强调了微服务中需要基于图的预测任务。</p>
 <h4 id="剖析">3.3 剖析</h4>
-<p>Stateless 微服务的调用特征可以分为3种类型（Fig 8-a）： -
-blackhole：调用图终止于此，不会再产生新的分叉 -
-relays：一定会调用其他服务用于响应用户请求 -
-normal：以一定概率调用DMs的服务
-微服务中每一层这三种类型节点的分布都不一样，每一层normal服务的调用概率分布也不一样</p>
+<p>Stateless 微服务的调用特征可以分为3种类型（Fig 8-a）：</p>
+<ul>
+<li>blackhole：调用图终止于此，不会再产生新的分叉</li>
+<li>relays：一定会调用其他服务用于响应用户请求</li>
+<li>normal：以一定概率调用DMs的服务
+微服务中每一层这三种类型节点的分布都不一样，每一层normal服务的调用概率分布也不一样</li>
+</ul>
 <figure>
 <img
 src="https://cdn.jsdelivr.net/gh/jiengup/ImageBed@main/picgo202304042331490.png"
@@ -215,39 +225,53 @@ Memcacheds 的cache
 miss，因此会去Database里面获取数据，IP(S2D)呈上升趋势，而S2D的上升和S2M下降的差距会由MQ来填补上。</p>
 <h3 id="stateless微服务间的依赖分析">4. Stateless微服务间的依赖分析</h3>
 <h4 id="循环依赖">4. 1 循环依赖</h4>
-<p><img
+<figure>
+<img
 src="https://cdn.jsdelivr.net/gh/jiengup/ImageBed@main/picgo202304051321296.png"
-alt="image.png" /> - 微服务的所有依赖中，循环依赖占到了超过7.8% -
-循环依赖可以分为两种类型： - strong
-dependency：到达UM的调用和DM回复调用接口是相同的（<span
+alt="image.png" />
+<figcaption aria-hidden="true">image.png</figcaption>
+</figure>
+<ul>
+<li>微服务的所有依赖中，循环依赖占到了超过7.8%</li>
+<li>循环依赖可以分为两种类型：
+<ul>
+<li>strong dependency：到达UM的调用和DM回复调用接口是相同的（<span
 class="math inline">\(I_1=I_3\)</span> in Fig 9），并且存在strong
 dependency
-循环调用的两个微服务间发生循环调用的概率高达83%。这种情况下，如果设计不当很可能会造成微服务间的死锁
-- weak depency：<span class="math inline">\(I_1 \ne I_3\)</span> in Fig
-9 - 很少存在多个微服务参与的循环调用（long cyclic
+循环调用的两个微服务间发生循环调用的概率高达83%。这种情况下，如果设计不当很可能会造成微服务间的死锁</li>
+<li>weak depency：<span class="math inline">\(I_1 \ne I_3\)</span> in
+Fig 9</li>
+</ul></li>
+<li>很少存在多个微服务参与的循环调用（long cyclic
 calls），因此通常只用考虑两层的cyclic
 denpendency及其优化（可以考虑将存在cyclic
-dependency的两个微服务合并）</p>
+dependency的两个微服务合并）</li>
+</ul>
 <h4 id="耦合依赖具有很高调用概率和很多调用次数的依赖">4.2
 耦合依赖——具有很高调用概率和很多调用次数的依赖</h4>
 <p>为一个两层调用<span
-class="math inline">\(Y-&gt;X\)</span>定义两个metric： <span
-class="math display">\[
+class="math inline">\(Y-&gt;X\)</span>定义两个metric：</p>
+<p><span class="math display">\[
 \begin{aligned}
 Call Probability(Y2X) = Count(X) / Sum \\
 Call Time(Y2X) = Count(X) / N
 \end{aligned}
-\]</span> 其中<span class="math inline">\(Count(X)\)</span>表示UM
-Y调用DM X的次数（注意在一次请求中一个DM可能会被Y调用多次），<span
+\]</span></p>
+<p>其中<span class="math inline">\(Count(X)\)</span>表示UM Y调用DM
+X的次数（注意在一次请求中一个DM可能会被Y调用多次），<span
 class="math inline">\(Sum\)</span>表示Y在所有调用图中发起的两层调用的个数和，<span
 class="math inline">\(N\)</span>表示<span
-class="math inline">\(Sum\)</span> 中DM X被调用的那些两层调用的个数。
+class="math inline">\(Sum\)</span></p>
+<p>中DM X被调用的那些两层调用的个数。</p>
+<figure>
 <img
 src="https://cdn.jsdelivr.net/gh/jiengup/ImageBed@main/picgo202304051404843.png"
-alt="image.png" /> 从Fig 10中可以看出来，有超过10%的微服务对的Call
-Time和Call
-Probability的乘积大于5，这说明有相当一部分微服务对有着很强的耦合依赖。
-同时还发现，有强耦合依赖的微服务对中有17%不会与其他微服务分享DM（入度为1），这意味着<strong>可以将这对服务本地化，以减少远程调用产生的开销</strong></p>
+alt="image.png" />
+<figcaption aria-hidden="true">image.png</figcaption>
+</figure>
+<p>从Fig 10中可以看出来，有超过10%的微服务对的Call Time和Call
+Probability的乘积大于5，这说明有相当一部分微服务对有着很强的耦合依赖。</p>
+<p>同时还发现，有强耦合依赖的微服务对中有17%不会与其他微服务分享DM（入度为1），这意味着<strong>可以将这对服务本地化，以减少远程调用产生的开销</strong></p>
 <h3 id="微服务运行时性能">5 微服务运行时性能</h3>
 <h4 id="微服务调用率">5.1 微服务调用率</h4>
 <ul>
@@ -255,8 +279,10 @@ Probability的乘积大于5，这说明有相当一部分微服务对有着很�
 MCR，每分钟微服务收到的调用数）和CPU利用率以及Young
 GC高度相关，但是和内存利用率不高度相关，这说明<strong>CPU利用率和Young
 GCs能够更好的反应运行微服务容器的资源压力</strong></li>
-<li>相对来说，内存使用情况在大多数容器中都是非常稳定的，与先前的研究结果相符
-#### 5.2 微服务时延性能（RT）</li>
+<li>相对来说，内存使用情况在大多数容器中都是非常稳定的，与先前的研究结果相符</li>
+</ul>
+<h4 id="微服务时延性能rt">5.2 微服务时延性能（RT）</h4>
+<ul>
 <li>一个在线服务的端到端时延（RT, entering
 调用的返回时间）在具有类似拓扑结构的调用图中很相似，但是具有不同拓扑结构的调用图之间有很大差异，<strong>这也说明了图学习算法可以用来预测延时</strong>
 <img

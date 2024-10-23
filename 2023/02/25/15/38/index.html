@@ -10,7 +10,7 @@
   
 
   
-  <title>深入浅出Disk IO - GuntherX&#39;s</title>
+  <title>深入浅出Disk-IO - GuntherX&#39;s</title>
 
   
 
@@ -29,7 +29,7 @@
 
 <meta property="og:site_name" content="GuntherX&#39;s">
 <meta property="og:type" content="article">
-<meta property="og:title" content="深入浅出Disk IO - GuntherX&#39;s">
+<meta property="og:title" content="深入浅出Disk-IO - GuntherX&#39;s">
 
 <meta property="og:description" content="了解IO的工作原理、应用场景以及算法的均衡考量，深入理解存储系统可以帮助开发者和操作人员更好的工作：他们可以根据他们正在评估的数据库底层来做出更好的决定。通过将它们的工作负载与他们选择的数据库进行比较，可以解决数据库行为不当时的性能问题，并调整它们的设计结构（通过负载均衡、切换到不同的介质、文件系统...">
 
@@ -89,7 +89,7 @@
     
   
     
-    <a target="_blank" rel="noopener" href="https://reasons-for-living.guntherx-space.vercel.app/">KnowBase⎋</a>
+    <a target="_blank" rel="noopener" href="https://reason-for-live.pages.dev/">KnowBase⎋</a>
     
   
     
@@ -101,7 +101,7 @@
   <hr class="margin-bottom">
 </header>
   <main>
-      <h1>深入浅出Disk IO</h1>
+      <h1>深入浅出Disk-IO</h1>
 
   <p>
     <i>Feb 25, 2023</i> -
@@ -155,9 +155,13 @@ alt="image.png" />
 </figure>
 <h2 id="page-cache">Page Cache</h2>
 <p>页缓存存储了被访问的文件中最有可能在最近的时间内被访问的片段，当操作硬盘文件时，<em>read()</em> and <em>write()</em>
-调用不是直接访问硬盘而是通过Page Cache访问 <img
+调用不是直接访问硬盘而是通过Page Cache访问</p>
+<figure>
+<img
 src="https://cdn.jsdelivr.net/gh/jiengup/ImageBed@main/picgo202302242328238.png"
-alt="image.png" /></p>
+alt="image.png" />
+<figcaption aria-hidden="true">image.png</figcaption>
+</figure>
 <p>执行读取操作时，首先查询页面缓存。如果数据已经加载到页面缓存中，就只用直接复制出来：不执行磁盘访问并且完全从内存读取。否则，文件内容将加载到页面缓存中，然后返回给用户。如果页面缓存已满，则最近最少使用的页面将刷新到磁盘上并从缓存中逐出以释放空间用于新页面。</p>
 <p><em>write ()</em>调用只是将用户空间缓冲区复制到内核 Page
 Cache，将写入的页面标记为<em>dirty</em>的。然后，内核在磁盘上写入修改，这个过程称为刷新或写回。实际的硬盘
@@ -201,10 +205,12 @@ alt="image.png" />
 <figcaption aria-hidden="true">image.png</figcaption>
 </figure>
 <p>内核开发人员通常不赞成使用 DirectIO。到目前为止，Linux 手册页引用了
-Linus Torwalds 的话: &gt; <a
-target="_blank" rel="noopener" href="http://yarchive.net/comp/linux/o_direct.html">The thing that has
-always disturbed me about O_DIRECT is that the whole interface is just
-stupid</a>”.</p>
+Linus Torwalds 的话:</p>
+<blockquote>
+<p><a target="_blank" rel="noopener" href="http://yarchive.net/comp/linux/o_direct.html">The thing that
+has always disturbed me about O_DIRECT is that the whole interface is
+just stupid</a>”.</p>
+</blockquote>
 <p>但是，PostgreSQL 和 MySQL 等数据库使用 Direct IO
 是有原因的。开发人员可以确保对数据访问的细粒度控制，可以使用自定义 IO
 调度器和特定于应用程序的缓冲区缓存。例如，PostgreSQL 使用 Direct IO For
@@ -220,11 +226,18 @@ Page Cache
 <p>换句话说，每个操作的起始偏移量必须是512的倍数，缓冲区大小也必须是512的倍数。在使用
 Page Cache 时，因为写首先进入内存，对齐并不重要:
 当执行实际的块设备写操作时，内核将确保将页分割成合适大小的部分，并对硬件执行对齐的写操作。</p>
-<p><img
+<figure>
+<img
 src="https://cdn.jsdelivr.net/gh/jiengup/ImageBed@main/picgo202302242348560.png"
-alt="image.png" /> <img
+alt="image.png" />
+<figcaption aria-hidden="true">image.png</figcaption>
+</figure>
+<figure>
+<img
 src="https://cdn.jsdelivr.net/gh/jiengup/ImageBed@main/picgo202302242349187.png"
-alt="image.png" /></p>
+alt="image.png" />
+<figcaption aria-hidden="true">image.png</figcaption>
+</figure>
 <p>例如，RocksDB
 通过前期检查确保操作是块对齐的(旧版本通过在后台对齐允许不对齐访问)。</p>
 <p>无论是否使用 <em>O_DIRECT</em>
@@ -232,10 +245,14 @@ alt="image.png" /></p>
 ，如上图所示。使用块大小或恰好适合块内部的值可以保证块对齐的 I/O
 请求，并防止内核中的无用工作。</p>
 <h2 id="memory-mapping">Memory Mapping</h2>
-<p>内存映射(mmap)允许你访问一个文件，就好像它完全在内存中一样。它简化了文件访问，并经常被数据库和应用程序开发人员使用。
+<p>内存映射(mmap)允许你访问一个文件，就好像它完全在内存中一样。它简化了文件访问，并经常被数据库和应用程序开发人员使用。</p>
+<figure>
 <img
 src="https://cdn.jsdelivr.net/gh/jiengup/ImageBed@main/picgo202302251418239.png"
-alt="image.png" /> 使用
+alt="image.png" />
+<figcaption aria-hidden="true">image.png</figcaption>
+</figure>
+<p>使用
 mmap，文件可以私有地映射到内存段，也可以在共享模式下映射到内存段。私有映射允许从文件读取，但是任何写操作都会触发页面的写时复制(copy-on-write)
 ，以保持原始页面的完整性并保持更改的私有性，所以任何更改都不会反映在文件本身上。在共享模式下，文件映射与其他进程共享，这样它们就可以看到映射内存段的更新。此外，更改会传递到底层文件(需要使用
 msync 进行精确控制)。</p>
@@ -256,27 +273,28 @@ IO，在进行系统调用之前，数据必须复制到用户空间缓冲区中
 IO 操作的系统调用(以及随后的上下文切换)开销，除非出现Page
 Fault。从开发人员的角度来看，使用映射文件发出随机读操作看起来就像一个正常的指针操作，并且不涉及
 lseek 调用。</p>
-<p>大多数时候提到的 mmap 的缺点在现代硬件的工作下已经关系不大了： - Mmap
-增加了管理内存映射所需的内核数据结构的开销:
-在今天的实际情况和内存大小中，这个参数不起主要作用。 -
-内存映射文件大小限制:
-大多数情况下，内核代码对内存更加友好，并且64位架构允许映射更大的文件。</p>
+<p>大多数时候提到的 mmap 的缺点在现代硬件的工作下已经关系不大了：</p>
+<ul>
+<li>Mmap 增加了管理内存映射所需的内核数据结构的开销:
+在今天的实际情况和内存大小中，这个参数不起主要作用。</li>
+<li>内存映射文件大小限制:
+大多数情况下，内核代码对内存更加友好，并且64位架构允许映射更大的文件。</li>
+</ul>
 <p>当然，这也不是说任何时候共享内存文件都是合适的。</p>
 <p>数据库引擎设计人员经常使用 mmap。例如，MongoDB 默认存储引擎是 mmap
 支持的，而 SQLite 广泛使用内存映射。</p>
 <p>从目前来看，使用标准IO似乎简化了很多问题，并且有很多好处，但代价是失去了完全的控制：你在内核和page
 cache的帮助下工作的很好。在某些情况下，这确实是真的。通常，内核可以使用内部统计信息更好地预测何时执行回写和预取页面。但是，有时可以从应用程序的角度考虑，来帮助内核以对应用程序有利的方式管理页面缓存。</p>
 <p>将您的意图通知内核的一种方法是使用
-<em>fadvise</em>。使用这个标志，可以向内核说明你的意图，并让它优化页面缓存的使用:
--
-<em>FADV_SEQUENTIAL</em> 指明该文件是按顺序读取的，从较低的偏移量读取到较高的偏移量，因此内核可以确保在实际读取发生之前提前获取页面。
--
-<em>FADV_RANDOM</em> 禁用预先读取，并且从页面缓存中清除不太可能在短期内访问的页面。
--
-<em>FADV_WILLNEED</em> 通知操作系统在不久的将来该进程将需要该页。这为内核提供了提前缓存页面的机会，并且在进行读操作时，可以通过Page
-Cache而不是Page Fault提供服务。 -
-<em>FADV_DONTNEED</em> 建议内核可以为相应的页释放缓存(确保数据事先与磁盘同步的情况下)。
-- 还有一些标志 (例如_FADV_NOREUSE_)，但是在Linux上它不起作用</p>
+<em>fadvise</em>。使用这个标志，可以向内核说明你的意图，并让它优化页面缓存的使用:</p>
+<ul>
+<li><em>FADV_SEQUENTIAL</em> 指明该文件是按顺序读取的，从较低的偏移量读取到较高的偏移量，因此内核可以确保在实际读取发生之前提前获取页面。</li>
+<li><em>FADV_RANDOM</em> 禁用预先读取，并且从页面缓存中清除不太可能在短期内访问的页面。</li>
+<li><em>FADV_WILLNEED</em> 通知操作系统在不久的将来该进程将需要该页。这为内核提供了提前缓存页面的机会，并且在进行读操作时，可以通过Page
+Cache而不是Page Fault提供服务。</li>
+<li><em>FADV_DONTNEED</em> 建议内核可以为相应的页释放缓存(确保数据事先与磁盘同步的情况下)。</li>
+<li>还有一些标志 (例如_FADV_NOREUSE_)，但是在Linux上它不起作用</li>
+</ul>
 <p>就像这个标记的名字表达的那样，它只是建议，内核并不能保证一定会像建议的那样执行。</p>
 <p>由于数据库开发人员通常可以预测访问，因此 <em>fadvise</em>
 是一个非常有用的工具。例如，RocksDB 根据文件类型(SSTable 或
@@ -331,7 +349,7 @@ Arrow</a>.</p>
 
   <p class="center">
     <a href="#title"><span alt="Jump to top"></span><span>⬆</span></a>
-    <a class="classtest-link" href="/tags/disk-io/" rel="tag">#disk io</a>, <a class="classtest-link" href="/tags/linux/" rel="tag">#linux</a>
+    <a class="classtest-link" href="/tags/disk/" rel="tag">#disk</a>, <a class="classtest-link" href="/tags/io/" rel="tag">#io</a>, <a class="classtest-link" href="/tags/linux/" rel="tag">#linux</a>
   </p>
   
 
